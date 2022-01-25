@@ -1,53 +1,64 @@
 import Category from "components/categories/Category";
-import CategoryForm from "components/categories/CategoryForm";
 import { useState, useEffect } from "react";
 import { db } from "firebase";
-import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, deleteDoc } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore";
+import { useForm, useFieldArray } from "react-hook-form";
+import CategoryNameForm from "components/categories/CategoryNameForm";
+import Button from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
+import Box from "@mui/material/Box";
+import { Typography } from "@mui/material";
 
 const Categories = () => {
-  const [showMC, setShowMC] = useState(false);
-  const [catFir, setCatFir] = useState([]);
+  const { control } = useForm();
+  const { fields, append, replace } = useFieldArray({ control, name: "categories" });
 
   useEffect(() => {
     (async () => {
       const categories = [];
       const querySnapshot = await getDocs(collection(db, "categories"));
-      //   console.log(querySnapshot);
       querySnapshot.forEach((doc) => categories.push({ key: doc.id, value: doc.data() }));
-      //   console.log(categories);
-      setCatFir(categories);
-      //   setCatFir(catFir.push({key:doc.id, value: doc.data()}));
+      replace(categories);
     })();
   }, []);
 
-  const dodaj = async () => {
-    const docName = "newCat";
-    const data = {
-      red: "red",
-    };
+  const [showForm, setShowForm] = useState(false);
 
-    await setDoc(doc(db, "categories", docName), data);
-    //loading
-    //refresh page
-    window.location.reload();
-    // setCatFir([...catFir, { key: docName, value: data }]);
+  const addItem = (name) => {
+    setDoc(doc(db, "categories", name), {});
+    append({ key: name, value: {} });
+  };
+  const removeItem = (category) => {
+    const docRef = doc(db, "categories", category.key);
+    deleteDoc(docRef);
+    const categoriesFields = [...fields.filter((item) => item.id !== category.id)];
+    replace(categoriesFields);
   };
 
   return (
-    <div>
-      <h1>Categories</h1>
-      <button onClick={() => setShowMC(!showMC)}>add main category</button>
-      {/* raczej wyskoczy popup i trzeba bedzie wpisac nazwe i jedno key value i sie strona przeładuje */}
-      {showMC && (
-        <>
-          <div>dodananie dokumentu popup</div>
-          <button onClick={dodaj}>Add</button>
-        </>
-      )}
-
-      {catFir && catFir.map((item, index) => <Category key={index} cat={item} />)}
-    </div>
+    <Box>
+      <Typography variant="h5" sx={{ my: 2 }}>
+        Categories management
+      </Typography>
+      <Button
+        variant="contained"
+        sx={{ my: 2 }}
+        startIcon={<AddIcon />}
+        onClick={(e) => {
+          e.stopPropagation();
+          setShowForm(true);
+        }}
+      >
+        Add category
+      </Button>
+      <Box sx={{ display: "grid", gap: 1, gridTemplateColumns: "repeat(2, 1fr)" }}>
+        {fields.map((item) => (
+          <Category key={item.id} category={item} removeCategory={removeItem} />
+        ))}
+      </Box>
+      {showForm && <CategoryNameForm save={addItem} setShowForm={setShowForm} />}
+    </Box>
   );
 };
 

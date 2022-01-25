@@ -1,134 +1,129 @@
-import styled from "styled-components";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useContext, useState } from "react";
-import CategoryForm from "./CategoryForm";
+import { useState } from "react";
+import CategoryFieldForm from "./CategoryFieldForm";
 import { useEffect } from "react/cjs/react.development";
 import { db } from "firebase";
-import { doc, setDoc, getDoc, deleteDoc, updateDoc, deleteField } from "firebase/firestore";
-import { collection, getDocs } from "firebase/firestore";
+import { doc, setDoc, updateDoc, deleteField } from "firebase/firestore";
+import List from "@mui/material/List";
+import ListItemText from "@mui/material/ListItemText";
+import Collapse from "@mui/material/Collapse";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import StyledExpand from "components/mui/StyledExpand";
+import StyledListItemButton from "components/mui/StyledListItemButton";
 
-const StyledWrapper = styled.div`
-  background: grey;
-  padding: 50px;
-  margin: 50px;
-`;
-
-const Category = ({ cat }) => {
-  const {
-    register,
-    handleSubmit,
-    control,
-    getValues,
-    setValue,
-    formState: { errors },
-  } = useForm();
-  const { fields: colorsFields, append: colorsAppend, replace: replaceColors } = useFieldArray({ control, name: "colors" });
+const Category = ({ category, removeCategory }) => {
+  const { control } = useForm();
+  const { fields, append, replace } = useFieldArray({ control, name: "categoryFields" });
 
   useEffect(() => {
-    if (cat === undefined) return;
-
-    for (const [key, value] of Object.entries(cat.value)) {
-      //   appendCategory(null, key, value);
-      colorsAppend({ key, value });
+    for (const [key, value] of Object.entries(category.value)) {
+      append({ key, value });
     }
-  }, [cat]);
-
-  const onSubmit = (data) => {
-    console.log(data);
-  };
-
-  const appendCategory = async (id, key, value) => {
-    if (!editValues) {
-      console.log(id, key, value);
-      colorsAppend({ key, value });
-      setEditValues(undefined);
-    } else {
-      const tempArray = [...colorsFields];
-      const foundedIndex = tempArray.findIndex((item) => item.id === id);
-
-      const docRef = doc(db, "categories", cat.key);
-      //remove old field in case of changed key
-      await updateDoc(docRef, {
-        [tempArray[foundedIndex].key]: deleteField(),
-      });
-      //add new field
-      await updateDoc(docRef, {
-        [key]: value,
-      });
-
-      if (foundedIndex !== -1) tempArray[foundedIndex].key = key;
-      if (foundedIndex !== -1) tempArray[foundedIndex].value = value;
-      replaceColors(tempArray);
-      setEditValues(undefined);
-    }
-  };
-
-  const dispalyFields = () => {
-    return colorsFields.map((item, index) => (
-      <div key={index}>
-        {item.key} : {item.value}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            setEditValues({
-              id: item.id,
-              key: item.key,
-              value: item.value,
-            });
-            setShowForm(true);
-          }}
-        >
-          edytuj
-        </button>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            removeField(item.id);
-          }}
-        >
-          usun
-        </button>
-      </div>
-    ));
-  };
-
-  const removeField = async (fieldId) => {
-    console.log(fieldId);
-    const tempArray = [...colorsFields];
-    const foundedIndex = tempArray.findIndex((item) => item.id === fieldId);
-    //
-    const docRef = doc(db, "categories", cat.key);
-    //remove field
-    await updateDoc(docRef, {
-      [tempArray[foundedIndex].key]: deleteField(),
-    });
-    //
-    if (foundedIndex !== -1) tempArray.splice(foundedIndex, 1);
-    replaceColors(tempArray);
-  };
-
-  const removeDocument = async () => {
-    // console.log(cat.key);
-    await deleteDoc(doc(db, "categories", cat.key));
-    window.location.reload();
-  };
+  }, []);
 
   const [showForm, setShowForm] = useState(false);
   const [editValues, setEditValues] = useState(undefined);
+  const [listCollapsed, setListCollapsed] = useState(false);
+
+  const action = (values) => {
+    if (values.id) editField(values);
+    else addField(values);
+  };
+
+  const addField = async (values) => {
+    const { key, value } = values;
+    const docRef = doc(db, "categories", category.key);
+    setDoc(docRef, { [key]: value }, { merge: true });
+    append({ key, value });
+    setEditValues(undefined);
+  };
+  const editField = async (values) => {
+    const { id, key, value } = values;
+    const fieldsArray = [...fields];
+    const fieldIndex = fieldsArray.findIndex((item) => item.id === id);
+    const docRef = doc(db, "categories", category.key);
+    //remove old field in case of changed key
+    await updateDoc(docRef, {
+      [fieldsArray[fieldIndex].key]: deleteField(),
+    });
+    //add new field
+    await updateDoc(docRef, {
+      [key]: value,
+    });
+    fieldsArray[fieldIndex].key = key;
+    fieldsArray[fieldIndex].value = value;
+    replace(fieldsArray);
+    setEditValues(undefined);
+  };
+  const removeField = (e, fieldId) => {
+    e.stopPropagation();
+    const fieldsArray = [...fields];
+    const fieldIndex = fieldsArray.findIndex((item) => item.id === fieldId);
+    const docRef = doc(db, "categories", category.key);
+    updateDoc(docRef, {
+      [fieldsArray[fieldIndex].key]: deleteField(),
+    });
+    fieldsArray.splice(fieldIndex, 1);
+    replace(fieldsArray);
+  };
+
+  const addAction = (e) => {
+    e.stopPropagation();
+    setEditValues({});
+    setShowForm(true);
+  };
+  const editAction = (e, item) => {
+    e.stopPropagation();
+    setEditValues({
+      id: item.id,
+      key: item.key,
+      value: item.value,
+    });
+    setShowForm(true);
+  };
 
   return (
     <>
-      <StyledWrapper>
-        <div>
-          Komponent trzymający stan formularza {cat.key} <button onClick={removeDocument}>usun cat</button>
-        </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <>{dispalyFields()}</>
-          <input type="submit" />
-        </form>
-        <button onClick={() => setShowForm(true)}>showForm</button>
-      </StyledWrapper>
-      {showForm && <CategoryForm save={appendCategory} setShowForm={setShowForm} editValues={editValues} />}
+      <List
+        sx={{
+          width: "500px",
+          height: "min-content",
+          maxWidth: 500,
+          overflow: "hidden",
+          m: 5,
+          pb: 0,
+          pt: 0,
+          border: 1,
+          borderRadius: 3,
+          borderColor: "grey.200",
+          bgcolor: "#fff",
+        }}
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+      >
+        <StyledListItemButton header={true} onClick={() => setListCollapsed(!listCollapsed)}>
+          <ListItemText primary={category.key} />
+          <AddIcon sx={{ ml: 1 }} fontSize="medium" onClick={(e) => addAction(e)} />
+          <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => removeCategory(category)} />
+          {fields.length > 0 && <StyledExpand listCollapsed={listCollapsed} />}
+        </StyledListItemButton>
+        {fields.length > 0 && (
+          <List component="div" disablePadding sx={{ pl: 4 }}>
+            <Collapse in={listCollapsed} timeout="auto" unmountOnExit sx={{ mb: 1 }}>
+              {fields.map((item) => (
+                <StyledListItemButton key={item.id}>
+                  <ListItemText primary={`${item.key}: ${item.value}`} />
+                  <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => removeField(e, item.id)} />
+                  <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editAction(e, item)} />
+                </StyledListItemButton>
+              ))}
+            </Collapse>
+          </List>
+        )}
+      </List>
+      {showForm && <CategoryFieldForm save={action} setShowForm={setShowForm} editValues={editValues} />}
     </>
   );
 };
