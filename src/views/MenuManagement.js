@@ -1,16 +1,12 @@
 import MenuMain from "components/menuLinks/MenuMain";
 import { useState, useEffect } from "react";
 import { db } from "firebase";
-import { doc, setDoc, getDoc, deleteDoc, addDoc } from "firebase/firestore";
-import { collection, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
 import MenuForm from "components/menuLinks/MenuForm";
 import Button from "@mui/material/Button";
-import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
-import { Container } from "@mui/material";
-import { grey, red } from "@mui/material/colors";
 import { Typography } from "@mui/material";
 
 const MenuManagement = () => {
@@ -20,9 +16,8 @@ const MenuManagement = () => {
     handleSubmit(onSubmit)();
   };
   const onSubmit = (data) => {
-    console.log("allMenus", data.menus);
-    if (data.menus.length === 0) return;
     const { menus } = data;
+    /* tests */
     // setDoc(doc(db, "menus", "main"), {
     // setDoc(doc(db, "cities", "temp"), {
     setDoc(doc(db, "cities", "LA"), {
@@ -34,44 +29,26 @@ const MenuManagement = () => {
 
   useEffect(() => {
     (async () => {
-      const categories = [];
+      const menuMainsArray = [];
+      /* tests */
       // const docRef = await doc(db, "cities", "LAaaaa");
       const docRef = await doc(db, "cities", "LA");
       const docSnap = (await getDoc(docRef)).data();
       for (const property in docSnap) {
-        categories.push(docSnap[property]);
+        menuMainsArray.push(docSnap[property]);
       }
-      menusReplace(categories);
-
-      // const addTestMenu = doc(db, "menu", "test");
-      // setDoc(cityRef, {
-      //   link: "/products/men",
-      //   order: 1,
-      //   title: "Men",
-      //   categories: [
-      //     {
-      //       order: 1,
-      //       title: "Trousers",
-      //       link: "/products/men/trousers",
-      //       podcategories: [
-      //         { link: "/products/men/trousers?podcategory=jeans", order: 1, title: "Jeans" },
-      //         { link: "/products/men/trousers?podcategory=tracksuit", order: 2, title: "Tracksuit" },
-      //       ],
-      //     },
-      //     { link: "/404", title: "T-shirts", order: 2 },
-      //   ],
-      // });
+      menusReplace(menuMainsArray);
     })();
   }, []);
 
   const deleteMenuMain = (id) => {
-    const arr = [...menusFields].filter((item) => item.id !== id);
-    menusReplace(arr);
+    const updatedArray = [...menusFields].filter((item) => item.id !== id);
+    menusReplace(updatedArray);
     submitAllMenus();
   };
   const addMenuMain = (values) => {
     const { order, title, link } = values;
-    const arrcopy = [
+    const newMenusArray = [
       ...menusFields,
       {
         order,
@@ -81,7 +58,7 @@ const MenuManagement = () => {
       },
     ];
     setShowForm(false);
-    menusReplace(arrcopy);
+    menusReplace(newMenusArray);
     submitAllMenus();
   };
 
@@ -102,13 +79,12 @@ const MenuManagement = () => {
         Add menu
       </Button>
       <Box sx={{ display: "grid", gap: 1, gridTemplateColumns: "repeat(1, 1fr)" }}>
-        {menusFields.map((item, index) => (
+        {menusFields.map((item) => (
           <MenuMain
             key={item.id}
             menuMain={item}
             deleteMenuMain={deleteMenuMain}
             menusFields={menusFields}
-            menusAppend={menusAppend}
             menusReplace={menusReplace}
             submitAllMenus={submitAllMenus}
           />
@@ -120,19 +96,3 @@ const MenuManagement = () => {
 };
 
 export default MenuManagement;
-
-// link: "/products/men",
-// order: 1,
-// title: "Men",
-// categories : [
-//   {
-//     order: 1,
-//     title: "Trousers",
-//     link: "/products/men/trousers",
-//     podcategories: [
-//       { link: "/products/men/trousers?podcategory=jeans", order: 1, title: "Jeans" },
-//       { link: "/products/men/trousers?podcategory=tracksuit", order: 2, title: "Tracksuit" },
-//     ],
-//   },
-//   { link: "/404", title: "T-shirts", order: 2 },
-// ];

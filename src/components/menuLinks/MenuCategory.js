@@ -1,32 +1,17 @@
-import styled from "styled-components";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useState } from "react";
-import { useEffect } from "react/cjs/react.development";
+import { useState, useEffect } from "react";
 import MenuForm from "./MenuForm";
 import MenuPodcategory from "./MenuPodcategory";
-import ListSubheader from "@mui/material/ListSubheader";
 import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import SendIcon from "@mui/icons-material/Send";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import StarBorder from "@mui/icons-material/StarBorder";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import StyledExpand from "components/mui/StyledExpand";
+import StyledListItemButton from "components/mui/StyledListItemButton";
 
-const StyledWrapper = styled.div`
-  background: lightgray;
-  padding: 20px;
-  margin: 20px;
-`;
-
-const MenuCategory = ({ category, categoriesFields, categoriesAppend, categoriesReplace, submitChanges }) => {
+const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMenuCategory, submitChanges }) => {
   const { control } = useForm();
   const {
     fields: podcategoriesFields,
@@ -34,22 +19,18 @@ const MenuCategory = ({ category, categoriesFields, categoriesAppend, categories
     replace: podcategoriesReplace,
   } = useFieldArray({ control, name: "podcategories" });
 
-  //stworz liste podkategorii
   useEffect(() => {
-    // console.log("MenuCategory ", category);
-    if (category.podcategories?.length) {
-      const arr = [];
-      category.podcategories.forEach((item) => {
-        // console.log("MenuCategoryMenuCategoryMenuCategory", item);
-        arr.push({ title: item.title, link: item.link, order: item.order });
-      });
-      podcategoriesReplace(arr);
-    }
-    return podcategoriesReplace;
+    const podcategoriesArray = [];
+    category.podcategories?.forEach((item) => {
+      podcategoriesArray.push({ title: item.title, link: item.link, order: item.order });
+    });
+    podcategoriesReplace(podcategoriesArray);
   }, []);
 
   const [showForm, setShowForm] = useState(false);
   const [editItemValues, setEditItemValues] = useState(undefined);
+  const [listCollapsed, setListCollapsed] = useState(false);
+  const [subListCollapsed, setSubListCollapsed] = useState(false);
 
   const action = (values) => {
     if (values.id) editItem(values);
@@ -57,44 +38,41 @@ const MenuCategory = ({ category, categoriesFields, categoriesAppend, categories
   };
 
   const deleteItem = () => {
-    const changedArr = [...categoriesFields].filter((item) => item.id !== category.id && item);
-    categoriesReplace(changedArr);
-    submitChanges();
+    const updatedArray = [...categoriesFields].filter((item) => item.id !== category.id && item);
+    deleteMenuCategory(updatedArray);
   };
   const editItem = (values) => {
-    const changedArr = [...categoriesFields].map((item) => {
+    const updatedArray = [...categoriesFields].map((item) => {
       if (item.id === category.id) {
         item.order = values.order;
         item.title = values.title;
         item.link = values.link;
-        return item;
       }
       return item;
     });
-    categoriesReplace(changedArr);
+    categoriesReplace(updatedArray);
     submitChanges();
   };
 
-  //PODCATEGORY
-  const deletePodcategory = (nowatablica) => {
+  const deletePodcategory = (newPodcategoriesArray) => {
     const categoriesArrayCopy = [...categoriesFields];
     const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
-    categoriesArrayCopy[categoryIndex].podcategories = nowatablica;
+    categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
     categoriesReplace(categoriesArrayCopy);
     submitChanges();
   };
-  const editPodcategory = (nowatablica) => {
+  const editPodcategory = (newPodcategoriesArray) => {
     const categoriesArrayCopy = [...categoriesFields];
     const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
-    categoriesArrayCopy[categoryIndex].podcategories = nowatablica;
+    categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
     categoriesReplace(categoriesArrayCopy);
     submitChanges();
   };
   const addPodcategory = (values) => {
-    const categoriesArrayCopy = [...categoriesFields]; //Torusers,Tshirts
+    const categoriesArrayCopy = [...categoriesFields];
     const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
     const { order, title, link } = values;
-    const podcategoriesArrayCopy = [
+    const newPodcategoriesArray = [
       ...podcategoriesFields,
       {
         order,
@@ -102,13 +80,11 @@ const MenuCategory = ({ category, categoriesFields, categoriesAppend, categories
         link,
       },
     ];
-    categoriesArrayCopy[categoryIndex].podcategories = podcategoriesArrayCopy;
+    categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
     categoriesReplace(categoriesArrayCopy);
     submitChanges();
   };
 
-  const [listCollapsed, setListCollapsed] = useState(false);
-  const [subListCollapsed, setSubListCollapsed] = useState(false);
   const deleteAction = (e) => {
     e.stopPropagation();
     deleteItem();
@@ -125,28 +101,18 @@ const MenuCategory = ({ category, categoriesFields, categoriesAppend, categories
   };
   const addAction = (e) => {
     e.stopPropagation();
+    setEditItemValues({});
     setShowForm(true);
   };
 
   return (
     <>
-      <ListItemButton
-        onClick={() => setListCollapsed(!listCollapsed)}
-        sx={{
-          pt: `2px`,
-          pb: `2px`,
-          "&:hover": {
-            color: "black",
-            backgroundColor: "#ddd",
-          },
-        }}
-      >
+      <StyledListItemButton onClick={() => setListCollapsed(!listCollapsed)}>
         <ListItemText primary={category.title} />
         <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteAction(e)} />
         <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editAction(e)} />
-        {listCollapsed ? <ExpandLess sx={{ ml: 1 }} /> : <ExpandMore sx={{ ml: 1 }} />}
-      </ListItemButton>
-
+        <StyledExpand listCollapsed={listCollapsed} />
+      </StyledListItemButton>
       <Collapse in={listCollapsed} timeout="auto" unmountOnExit>
         <List component="div" disablePadding sx={{ pl: 4 }}>
           <ListItemText primary={`order: ${category.order}`} />
@@ -157,25 +123,11 @@ const MenuCategory = ({ category, categoriesFields, categoriesAppend, categories
         <List component="div" disablePadding sx={{ pl: 4 }}>
           <ListItemText primary={`link: ${category.link}`} />
         </List>
-
-        <ListItemButton
-          onClick={() => setSubListCollapsed(!subListCollapsed)}
-          component="div"
-          disablePadding
-          sx={{
-            pl: 4,
-            pt: `2px`,
-            pb: `2px`,
-            "&:hover": {
-              color: "black",
-              backgroundColor: "#ddd",
-            },
-          }}
-        >
+        <StyledListItemButton indent={true} onClick={() => setSubListCollapsed(!subListCollapsed)}>
           <ListItemText primary={`podcategories`} />
-          <AddIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => addAction(e)} />
-          {podcategoriesFields.length > 0 && (subListCollapsed ? <ExpandLess sx={{ ml: 1 }} /> : <ExpandMore sx={{ ml: 1 }} />)}
-        </ListItemButton>
+          <AddIcon fontSize="medium" sx={{ ml: 1 }} onClick={(e) => addAction(e)} />
+          {podcategoriesFields.length > 0 && <StyledExpand listCollapsed={subListCollapsed} />}
+        </StyledListItemButton>
         <List component="div" disablePadding sx={{ pl: 4 }}>
           <Collapse in={subListCollapsed} timeout="auto" unmountOnExit>
             {podcategoriesFields.length > 0 &&
@@ -191,7 +143,6 @@ const MenuCategory = ({ category, categoriesFields, categoriesAppend, categories
           </Collapse>
         </List>
       </Collapse>
-
       {showForm && <MenuForm save={action} setShowForm={setShowForm} editValues={editItemValues} />}
     </>
   );

@@ -1,66 +1,46 @@
-import styled from "styled-components";
 import { useForm, useFieldArray } from "react-hook-form";
-import { useState } from "react";
-import { useEffect } from "react/cjs/react.development";
+import { useState, useEffect } from "react";
 import MenuCategory from "./MenuCategory";
 import MenuForm from "./MenuForm";
-import ListSubheader from "@mui/material/ListSubheader";
 import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import DraftsIcon from "@mui/icons-material/Drafts";
-import SendIcon from "@mui/icons-material/Send";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import StarBorder from "@mui/icons-material/StarBorder";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Box from "@mui/material/Box";
-import { Container } from "@mui/material";
+import StyledExpand from "components/mui/StyledExpand";
+import StyledListItemButton from "components/mui/StyledListItemButton";
 
-const StyledWrapper = styled.div`
-  background: grey;
-  padding: 20px;
-  margin: 30px;
-`;
-
-const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusAppend, menusFields, submitAllMenus }) => {
+const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitAllMenus }) => {
   const { handleSubmit, control } = useForm();
   const { fields: categoriesFields, append: categoriesAppend, replace: categoriesReplace } = useFieldArray({ control, name: "categories" });
   const submitMenuMain = () => {
     handleSubmit(onSubmit)();
   };
-  const onSubmit = (data) => {
-    console.log("menuMain", data);
-    //update menumain in collection
-    const changedArr = [...menusFields].map((item) => {
+  const onSubmit = () => {
+    const updatedArray = [...menusFields].map((item) => {
       if (item.id === menuMain.id) {
         item.categories = categoriesFields;
         return item;
       }
       return item;
     });
-    menusReplace(changedArr);
+    menusReplace(updatedArray);
     submitAllMenus();
   };
 
-  //dodaj kategorie
   useEffect(() => {
-    if (menuMain === undefined) return;
-    // console.log("MenuMain ", menuMain);
-    const arr = [];
+    const categoriesArray = [];
     menuMain.categories?.forEach(async (item) => {
-      arr.push({ title: item.title, link: item.link, order: item.order, podcategories: item.podcategories || [] });
+      categoriesArray.push({ title: item.title, link: item.link, order: item.order, podcategories: item.podcategories || [] });
     });
-    categoriesReplace(arr);
+    categoriesReplace(categoriesArray);
   }, []);
 
   const [showForm, setShowForm] = useState(false);
   const [editItemValues, setEditItemValues] = useState(undefined);
+  const [listCollapsed, setListCollapsed] = useState(false);
+  const [subListCollapsed, setSubListCollapsed] = useState(false);
 
   const action = (values) => {
     if (values.id) editItem(values);
@@ -71,17 +51,16 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusAppend, menusFi
     deleteMenuMain(menuMain.id);
   };
   const editItem = (values) => {
-    const changedArr = [...menusFields].map((item) => {
+    const updatedArray = [...menusFields].map((item) => {
       if (item.id === menuMain.id) {
         item.order = values.order;
         item.title = values.title;
         item.link = values.link;
-        return item;
       }
       return item;
     });
     setShowForm(false);
-    menusReplace(changedArr);
+    menusReplace(updatedArray);
     submitAllMenus();
   };
 
@@ -89,7 +68,7 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusAppend, menusFi
     const menusArrayCopy = [...menusFields];
     const menuMainIndex = menusFields.findIndex((item) => item.id === menuMain.id);
     const { order, title, link } = values;
-    const categoriesArrayCopy = [
+    const newCategoriesArray = [
       ...categoriesFields,
       {
         order,
@@ -98,20 +77,18 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusAppend, menusFi
         podcategories: [],
       },
     ];
-    menusArrayCopy[menuMainIndex].categories = categoriesArrayCopy;
+    menusArrayCopy[menuMainIndex].categories = newCategoriesArray;
+    menusReplace(menusArrayCopy);
+    submitAllMenus();
+  };
+  const deleteMenuCategory = (newCategoriesArray) => {
+    const menusArrayCopy = [...menusFields];
+    const menuMainIndex = menusFields.findIndex((item) => item.id === menuMain.id);
+    menusArrayCopy[menuMainIndex].categories = newCategoriesArray;
     menusReplace(menusArrayCopy);
     submitAllMenus();
   };
 
-  // const handleClick = (e) => {
-  //   setListCollapsed(!listCollapsed);
-  // };
-  // const subhandleClick = () => {
-  //   setSubListCollapsed(!subListCollapsed);
-  // };
-
-  const [listCollapsed, setListCollapsed] = useState(false);
-  const [subListCollapsed, setSubListCollapsed] = useState(false);
   const deleteAction = (e) => {
     e.stopPropagation();
     deleteItem();
@@ -128,75 +105,50 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusAppend, menusFi
   };
   const addAction = (e) => {
     e.stopPropagation();
+    setEditItemValues({});
     setShowForm(true);
   };
 
   return (
     <>
-      {/* <List sx={{ width: "100%", maxWidth: 360, bgcolor: "text.disabled", ml: 5, mb: 10 }} component="nav" aria-labelledby="nested-list-subheader"> */}
       <List
         sx={{
           width: "500px",
+          height: "min-content",
           maxWidth: 500,
+          overflow: "hidden",
           m: 5,
-          border: 1,
-          borderColor: "grey.200",
-          bgcolor: "#fff",
-          borderRadius: 3,
           pb: 0,
           pt: 0,
-          overflow: "hidden",
-          height: "min-content",
+          border: 1,
+          borderRadius: 3,
+          borderColor: "grey.200",
+          bgcolor: "#fff",
         }}
         component="nav"
         aria-labelledby="nested-list-subheader"
       >
-        <ListItemButton
-          onClick={() => setListCollapsed(!listCollapsed)}
-          sx={{
-            "&:hover": {
-              color: "black",
-              backgroundColor: "#ddd",
-            },
-          }}
-        >
+        <StyledListItemButton header={true} onClick={() => setListCollapsed(!listCollapsed)}>
           <ListItemText primary={menuMain.title} />
           <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteAction(e)} />
           <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editAction(e)} />
-          {listCollapsed ? <ExpandLess sx={{ ml: 1 }} /> : <ExpandMore sx={{ ml: 1 }} />}
-        </ListItemButton>
-
+          <StyledExpand listCollapsed={listCollapsed} />
+        </StyledListItemButton>
         <Collapse in={listCollapsed} timeout="auto" unmountOnExit sx={{ mb: 1 }}>
           <List component="div" disablePadding sx={{ pl: 4 }}>
             <ListItemText>order: {menuMain.order}</ListItemText>
           </List>
           <List component="div" disablePadding sx={{ pl: 4 }}>
             <ListItemText primary={`title: ${menuMain.title}`} />
-            {/* <span sx={{ color: "warning.main" }}>title: </span> {menuMain.title} */}
           </List>
           <List component="div" disablePadding sx={{ pl: 4 }}>
             <ListItemText primary={`link: ${menuMain.link}`} />
-            {/* <span sx={{ color: "#F00" }}>link: </span> {menuMain.link} */}
           </List>
-
-          <ListItemButton
-            onClick={() => setSubListCollapsed(!subListCollapsed)}
-            component="div"
-            disablePadding
-            sx={{
-              pl: 4,
-              pt: `2px`,
-              pb: `2px`,
-              "&:hover": {
-                color: "black",
-                backgroundColor: "#ddd",
-              },
-            }}
-          >
+          <StyledListItemButton indent={true} onClick={() => setSubListCollapsed(!subListCollapsed)}>
             <ListItemText primary={`categories`} />
             <AddIcon sx={{ ml: 1 }} fontSize="medium" onClick={(e) => addAction(e)} />
-            {categoriesFields.length > 0 && (subListCollapsed ? <ExpandLess sx={{ ml: 1 }} /> : <ExpandMore sx={{ ml: 1 }} />)}
-          </ListItemButton>
+            {categoriesFields.length > 0 && <StyledExpand listCollapsed={subListCollapsed} />}
+          </StyledListItemButton>
           <List component="div" disablePadding sx={{ pl: 4 }}>
             <Collapse in={subListCollapsed} timeout="auto" unmountOnExit>
               {categoriesFields.map((item, index) => (
@@ -204,16 +156,15 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusAppend, menusFi
                   key={item.id}
                   category={categoriesFields[index]}
                   categoriesFields={categoriesFields}
-                  categoriesAppend={categoriesAppend}
                   categoriesReplace={categoriesReplace}
                   submitChanges={submitMenuMain}
+                  deleteMenuCategory={deleteMenuCategory}
                 />
               ))}
             </Collapse>
           </List>
         </Collapse>
       </List>
-
       {showForm && <MenuForm save={action} setShowForm={setShowForm} editValues={editItemValues} />}
     </>
   );
