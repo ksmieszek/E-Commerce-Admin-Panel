@@ -9,31 +9,11 @@ import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
-import Badge from "@mui/material/Badge";
-import Container from "@mui/material/Container";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
-import Link from "@mui/material/Link";
+import Button from "@mui/material/Button";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "./listItems";
-// import Chart from "./Chart";
-import Deposits from "./Deposits";
-import Orders from "./Orders";
-
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import { useAuth } from "hooks/useAuth";
 
 const drawerWidth = 240;
 
@@ -86,6 +66,7 @@ function DashboardContent(props) {
   const toggleDrawer = () => {
     setOpen(!open);
   };
+  const { SignOut } = useAuth();
 
   return (
     <ThemeProvider theme={mdTheme}>
@@ -94,7 +75,7 @@ function DashboardContent(props) {
         <AppBar position="absolute" open={open}>
           <Toolbar
             sx={{
-              pr: "24px", // keep right padding when drawer closed
+              pr: "24px",
             }}
           >
             <IconButton
@@ -110,13 +91,11 @@ function DashboardContent(props) {
               <MenuIcon />
             </IconButton>
             <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-              Dashboard
+              Admin Panel
             </Typography>
-            {/* <IconButton color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton> */}
+            <Button color="inherit" sx={{ mr: "50px" }} onClick={SignOut}>
+              Logout
+            </Button>
           </Toolbar>
         </AppBar>
         <Drawer variant="permanent" open={open}>
@@ -134,8 +113,8 @@ function DashboardContent(props) {
           </Toolbar>
           <Divider />
           <List>{mainListItems}</List>
-          <Divider />
-          <List>{secondaryListItems}</List>
+          {/* <Divider />
+          <List>{secondaryListItems}</List> */}
         </Drawer>
         <Box
           component="main"
@@ -148,42 +127,15 @@ function DashboardContent(props) {
         >
           <Toolbar />
           <Box maxWidth="lg" sx={{ my: 5, mx: 5 }}>
-            {/* <Grid container spacing={3}> */}
-            {/* Chart */}
-            {/* <Grid item xs={12} md={8} lg={9}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Chart />
-                </Paper>
-              </Grid> */}
-            {/* Recent Deposits */}
-            {/* <Grid item xs={12} md={4} lg={3}>
-                <Paper
-                  sx={{
-                    p: 2,
-                    display: "flex",
-                    flexDirection: "column",
-                    height: 240,
-                  }}
-                >
-                  <Deposits />
-                </Paper>
-              </Grid> */}
-            {/* Recent Orders */}
-            {/* <Grid item xs={12}>
+            {props.children}
+            {/* <>
+              Recent Orders
+              <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: "flex", flexDirection: "column" }}>
                   <Orders />
                 </Paper>
-              </Grid> */}
-            {props.children}
-            {/* </Grid> */}
-            {/* <Copyright sx={{ pt: 4 }} /> */}
+              </Grid>
+            </> */}
           </Box>
         </Box>
       </Box>

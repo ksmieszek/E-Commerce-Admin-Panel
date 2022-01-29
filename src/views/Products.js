@@ -1,4 +1,4 @@
-import ProductForm from "components/products/ProductForm";
+import ProductForm from "components/forms/productsManagement/ProductForm";
 import { db } from "firebase";
 import { useEffect, useState } from "react";
 import { collection, addDoc, doc, getDocs, deleteDoc, setDoc } from "firebase/firestore";

@@ -1,7 +1,7 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState, useEffect } from "react";
 import MenuCategory from "./MenuCategory";
-import MenuForm from "./MenuForm";
+import MenuForm from "../../forms/menuManagement/MenuForm";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
@@ -13,7 +13,7 @@ import StyledListItemButton from "components/mui/StyledListItemButton";
 
 const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitAllMenus }) => {
   const { handleSubmit, control } = useForm();
-  const { fields: categoriesFields, append: categoriesAppend, replace: categoriesReplace } = useFieldArray({ control, name: "categories" });
+  const { fields: categoriesFields, replace: categoriesReplace } = useFieldArray({ control, name: "categories" });
   const submitMenuMain = () => {
     handleSubmit(onSubmit)();
   };

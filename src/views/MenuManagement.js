@@ -1,9 +1,9 @@
-import MenuMain from "components/menuLinks/MenuMain";
 import { useState, useEffect } from "react";
 import { db } from "firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
-import MenuForm from "components/menuLinks/MenuForm";
+import MenuMain from "components/lists/menuManagement/MenuMain";
+import MenuForm from "components/forms/menuManagement/MenuForm";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
@@ -11,16 +11,13 @@ import { Typography } from "@mui/material";
 
 const MenuManagement = () => {
   const { control, handleSubmit } = useForm();
-  const { fields: menusFields, append: menusAppend, replace: menusReplace } = useFieldArray({ control, name: "menus" });
+  const { fields: menusFields, replace: menusReplace } = useFieldArray({ control, name: "menus" });
   const submitAllMenus = () => {
     handleSubmit(onSubmit)();
   };
   const onSubmit = (data) => {
     const { menus } = data;
-    /* tests */
-    // setDoc(doc(db, "menus", "main"), {
-    // setDoc(doc(db, "cities", "temp"), {
-    setDoc(doc(db, "cities", "LA"), {
+    setDoc(doc(db, "menus", "main"), {
       ...menus,
     });
   };
@@ -30,9 +27,7 @@ const MenuManagement = () => {
   useEffect(() => {
     (async () => {
       const menuMainsArray = [];
-      /* tests */
-      // const docRef = await doc(db, "cities", "LAaaaa");
-      const docRef = await doc(db, "cities", "LA");
+      const docRef = await doc(db, "menus", "main");
       const docSnap = (await getDoc(docRef)).data();
       for (const property in docSnap) {
         menuMainsArray.push(docSnap[property]);
@@ -65,7 +60,7 @@ const MenuManagement = () => {
   return (
     <Box>
       <Typography variant="h5" sx={{ my: 2 }}>
-        Menu management
+        Main menu management
       </Typography>
       <Button
         variant="contained"

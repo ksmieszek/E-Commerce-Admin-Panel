@@ -1,6 +1,6 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState, useEffect } from "react";
-import MenuForm from "./MenuForm";
+import MenuForm from "../../forms/menuManagement/MenuForm";
 import MenuPodcategory from "./MenuPodcategory";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
@@ -13,11 +13,7 @@ import StyledListItemButton from "components/mui/StyledListItemButton";
 
 const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMenuCategory, submitChanges }) => {
   const { control } = useForm();
-  const {
-    fields: podcategoriesFields,
-    append: podcategoriesAppend,
-    replace: podcategoriesReplace,
-  } = useFieldArray({ control, name: "podcategories" });
+  const { fields: podcategoriesFields, replace: podcategoriesReplace } = useFieldArray({ control, name: "podcategories" });
 
   useEffect(() => {
     const podcategoriesArray = [];

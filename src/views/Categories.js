@@ -1,10 +1,10 @@
-import Category from "components/categories/Category";
+import Category from "components/lists/categoriesManagement/Category";
 import { useState, useEffect } from "react";
 import { db } from "firebase";
 import { doc, setDoc, deleteDoc } from "firebase/firestore";
 import { collection, getDocs } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
-import CategoryNameForm from "components/categories/CategoryNameForm";
+import CategoryNameForm from "components/forms/categoriesManagement/CategoryNameForm";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";

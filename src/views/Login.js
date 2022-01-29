@@ -1,13 +1,11 @@
-import { useAuth } from "hooks/useAuth";
+import SignIn from "templates/mui/signIn/SignIn";
+import Box from "@mui/material/Box";
 
 const Login = () => {
-  const { SignIn, SignOut } = useAuth();
-
   return (
-    <div>
-      <div>Login</div>
-      <button onClick={SignIn}>Zaloguj</button>
-    </div>
+    <Box sx={{ height: "100vh", width: "100vw", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <SignIn />
+    </Box>
   );
 };
 

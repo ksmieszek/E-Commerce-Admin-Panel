@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MenuForm from "./MenuForm";
+import MenuForm from "../../forms/menuManagement/MenuForm";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";

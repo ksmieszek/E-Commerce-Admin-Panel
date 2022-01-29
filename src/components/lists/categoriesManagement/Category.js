@@ -1,6 +1,6 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState } from "react";
-import CategoryFieldForm from "./CategoryFieldForm";
+import CategoryFieldForm from "../../forms/categoriesManagement/CategoryFieldForm";
 import { useEffect } from "react/cjs/react.development";
 import { db } from "firebase";
 import { doc, setDoc, updateDoc, deleteField } from "firebase/firestore";

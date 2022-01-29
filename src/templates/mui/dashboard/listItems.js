@@ -7,6 +7,8 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import CategoryIcon from "@mui/icons-material/Category";
+import CheckroomIcon from "@mui/icons-material/Checkroom";
 import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { Link } from "react-router-dom";
@@ -31,7 +33,7 @@ export const mainListItems = (
     <StyledLink to={routes.products}>
       <ListItem button>
         <ListItemIcon>
-          <DashboardIcon />
+          <CheckroomIcon />
         </ListItemIcon>
         <ListItemText primary="Products" />
       </ListItem>
@@ -39,7 +41,7 @@ export const mainListItems = (
     <StyledLink to={routes.categories}>
       <ListItem button>
         <ListItemIcon>
-          <DashboardIcon />
+          <CategoryIcon />
         </ListItemIcon>
         <ListItemText primary="Categories" />
       </ListItem>
@@ -47,9 +49,9 @@ export const mainListItems = (
     <StyledLink to={routes.menuLinks}>
       <ListItem button>
         <ListItemIcon>
-          <DashboardIcon />
+          <LayersIcon />
         </ListItemIcon>
-        <ListItemText primary="Menu" />
+        <ListItemText primary="Main menu" />
       </ListItem>
     </StyledLink>
     {/* <StyledLink to={routes.root}>
@@ -66,22 +68,6 @@ export const mainListItems = (
           <PeopleIcon />
         </ListItemIcon>
         <ListItemText primary="Customers" />
-      </ListItem>
-    </StyledLink> */}
-    {/* <StyledLink to={routes.root}>
-      <ListItem button>
-        <ListItemIcon>
-          <BarChartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Reports" />
-      </ListItem>
-    </StyledLink> */}
-    {/* <StyledLink to={routes.root}>
-      <ListItem button>
-        <ListItemIcon>
-          <LayersIcon />
-        </ListItemIcon>
-        <ListItemText primary="Integrations" />
       </ListItem>
     </StyledLink> */}
   </div>
