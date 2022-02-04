@@ -1,5 +1,5 @@
 import { useState } from "react";
-import MenuForm from "../../forms/menuManagement/MenuForm";
+import MenuCategoryForm from "components/forms/menuManagement/MenuCategoryForm";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
@@ -8,38 +8,35 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
 
-const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, editPodcategory }) => {
+const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, editPodcategory, menuCategoryKey, menuMainKey }) => {
   const [showForm, setShowForm] = useState(false);
-  const [editItemValues, setEditItemValues] = useState(undefined);
+  const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
 
-  const deleteItem = () => {
-    const updatedArray = [...podcategoriesFields].filter((item) => item.id !== podcategory.id && item);
-    deletePodcategory(updatedArray);
-  };
   const editItem = (values) => {
     const updatedArray = [...podcategoriesFields].map((item) => {
       if (item.id === podcategory.id) {
         item.order = values.order;
         item.title = values.title;
-        item.link = values.link;
       }
       return item;
     });
     setShowForm(false);
     editPodcategory(updatedArray);
   };
-
-  const deleteAction = (e) => {
-    e.stopPropagation();
-    deleteItem();
+  const deleteItem = () => {
+    const updatedArray = [...podcategoriesFields].filter((item) => item.id !== podcategory.id && item);
+    deletePodcategory(updatedArray);
   };
+
   const editAction = (e) => {
     e.stopPropagation();
     setEditItemValues({
+      id: podcategory.id,
       order: podcategory.order,
       title: podcategory.title,
       link: podcategory.link,
+      key: podcategory.key,
     });
     setShowForm(true);
   };
@@ -48,7 +45,7 @@ const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, 
     <>
       <StyledListItemButton onClick={() => setListCollapsed(!listCollapsed)}>
         <ListItemText primary={podcategory.title} />
-        <DeleteIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => deleteAction(e)} />
+        <DeleteIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => deleteItem(e)} />
         <EditIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => editAction(e)} />
         <StyledExpand listCollapsed={listCollapsed} />
       </StyledListItemButton>
@@ -57,13 +54,22 @@ const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, 
           <ListItemText primary={`order: ${podcategory.order}`} />
         </List>
         <List component="div" disablePadding>
-          <ListItemText primary={`title: ${podcategory.title}`} />
+          <ListItemText primary={`order: ${podcategory.title}`} />
         </List>
         <List component="div" disablePadding>
           <ListItemText primary={`link: ${podcategory.link}`} />
         </List>
       </Collapse>
-      {showForm && <MenuForm save={editItem} setShowForm={setShowForm} editValues={editItemValues} />}
+      {showForm && (
+        <MenuCategoryForm
+          save={editItem}
+          setShowForm={setShowForm}
+          editValues={editItemValues}
+          menuCategoryKey={menuCategoryKey}
+          menuMainKey={menuMainKey}
+          isCategory={false}
+        />
+      )}
     </>
   );
 };

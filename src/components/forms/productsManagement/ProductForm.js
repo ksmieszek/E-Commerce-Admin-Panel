@@ -1,99 +1,18 @@
 import { useEffect, useState } from "react";
 import { db } from "firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, TextField, Box } from "@mui/material";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import ListItemText from "@mui/material/ListItemText";
-import Select from "@mui/material/Select";
-import Checkbox from "@mui/material/Checkbox";
-import FormHelperText from "@mui/material/FormHelperText";
 import Stack from "@mui/material/Stack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import Tooltip from "@mui/material/Tooltip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-
-const ControlledTooltip = ({ textToCopy, children }) => {
-  const [title, setTitle] = useState("Click to copy");
-  const copied = (e) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(textToCopy);
-    setTitle("Copied");
-    setTimeout(() => {
-      setTitle("Click to copy");
-    }, 1500);
-  };
-  return (
-    <Tooltip placement="top" leaveDelay={500} title={title} onClick={(e) => copied(e)}>
-      {children}
-    </Tooltip>
-  );
-};
-
-const ControlledMultipleSelect = ({ control, formName, itemsArray }) => (
-  <FormControl sx={{ width: 300 }}>
-    <Controller
-      name={formName}
-      control={control}
-      render={({ field, fieldState: { error } }) => (
-        <>
-          <InputLabel id={`${formName}-multiple-checkbox-label`} style={{ color: Boolean(error) && "#d32f2f" }} size="small">
-            Choose {formName}
-          </InputLabel>
-          <Select
-            {...field}
-            multiple
-            labelId={`${formName}-multiple-checkbox-label`}
-            label={`Choose ${formName}`}
-            size="small"
-            error={Boolean(error)}
-            MenuProps={{
-              PaperProps: {
-                style: {
-                  maxHeight: 233,
-                  width: 250,
-                },
-              },
-            }}
-            renderValue={(selected) => selected.join(", ")}
-          >
-            {itemsArray.map((name) => (
-              <MenuItem key={name} value={name}>
-                <Checkbox checked={field.value.indexOf(name) > -1} size="small" />
-                <ListItemText primary={name} />
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText error>{error?.message}</FormHelperText>
-        </>
-      )}
-    />
-  </FormControl>
-);
-
-const ControlledInput = ({ control, formName, label, type = "text", wide }) => (
-  <Controller
-    name={formName}
-    control={control}
-    render={({ field, fieldState: { error } }) => (
-      <TextField
-        {...field}
-        error={Boolean(error)}
-        helperText={error?.message}
-        label={label}
-        sx={{ width: wide ? "400px" : "300px" }}
-        type={type}
-        size="small"
-      />
-    )}
-  />
-);
+import ControlledSelect from "components/mui/ControlledSelect";
+import ControlledInput from "components/mui/ControlledInput";
+import StyledTooltip from "components/mui/StyledTooltip";
 
 let schema = yup.object().shape({
   frontImage: yup.string().url("Front image has to be URL address").trim().required("Front image name is a required field"),
@@ -109,8 +28,8 @@ let schema = yup.object().shape({
     .positive("Price must be a positive number")
     .typeError("Price must be a number")
     .required("Price is a required field"),
-  sex: yup.array().min(1, "Sex list must have at least one item").of(yup.string().trim()),
-  category: yup.array().min(1, "Category list must have at least one item").of(yup.string().trim()),
+  collection: yup.array().min(1, "Collection list must have at least one item").of(yup.string().trim()),
+  category: yup.string().typeError("Category field is required").required("Category field is required"),
   podcategory: yup.array().min(1, "Podcategory list must have at least one item").of(yup.string().trim()),
   sizes: yup.array().min(1, "Size list must have at least one item").of(yup.string().trim()),
   colors: yup.array().min(1, "Color list must have at least one item").of(yup.string().trim()),
@@ -121,6 +40,8 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
     handleSubmit,
     control,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm({
     defaultValues: {
       id: editValues?.id || undefined,
@@ -129,8 +50,8 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
       images: editValues?.images?.map((item) => ({ src: item })) || [],
       name: editValues?.name || "",
       price: editValues?.price || "",
-      sex: editValues?.sex || [],
-      category: editValues?.category || [],
+      collection: editValues?.collection || [],
+      category: (editValues?.category && editValues?.category[0]) || [],
       podcategory: editValues?.podcategory || [],
       sizes: editValues?.sizes || [],
       colors: editValues?.colors || [],
@@ -138,34 +59,56 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
     resolver: yupResolver(schema),
   });
   const { fields: imagesFields, append: imagesAppend, remove: imagesRemove } = useFieldArray({ control, name: "images" });
+  const watchCategory = watch("category");
 
   const onSubmit = async (data) => {
-    const { id, name, price, frontImage, backImage, sex, sizes, colors, category, podcategory, images } = data;
+    const { id, name, price, frontImage, backImage, collection, sizes, colors, category, podcategory, images } = data;
     const getImages = images.map((item) => item.src);
-    const categories = [...sex, ...category, ...podcategory, ...colors, ...sizes];
-    save({ id, name, price, frontImage, backImage, sex, sizes, colors, category, podcategory, images: getImages, categories });
+    const categories = [...collection, category, ...podcategory, ...colors, ...sizes];
+    save({ id, name, price, frontImage, backImage, collection, sizes, colors, category, podcategory, images: getImages, categories });
     setShowForm(false);
   };
 
   const [newImageUrl, SetNewImageUrl] = useState("");
-  const [sexArray, setSexArray] = useState([]);
+  const [collectionArray, setCollectionArray] = useState([]);
   const [colorArray, setColorArray] = useState([]);
-  const [categoryArray, setCategoryArray] = useState([]);
-  const [podcategoryArray, setPodcategoryArray] = useState([]);
   const [sizeArray, setSizeArray] = useState([]);
+  const [catPodcatRelations, setCatPodcatRelations] = useState(undefined);
+  const [podcategoriesList, setPodcategoriesList] = useState([]);
+  const [categoriesList, setCategoriesList] = useState([]);
+  const [prevChosenCategory, setPrevChosenCategory] = useState([watchCategory]);
 
   useEffect(() => {
-    fetchCategory("sex", setSexArray);
-    fetchCategory("color", setColorArray);
-    fetchCategory("category", setCategoryArray);
-    fetchCategory("podcategory", setPodcategoryArray);
-    fetchCategory("size", setSizeArray);
+    (async () => {
+      const relations = (await getDoc(doc(db, "relations", "categoryPodcategory"))).data();
+      setCatPodcatRelations(relations);
+      setCategoriesList(Object.keys(relations));
+    })();
   }, []);
 
-  const fetchCategory = async (categoryName, saveFunc) => {
-    const docRef = doc(db, "categories", categoryName);
-    const docSnap = (await getDoc(docRef)).data();
-    saveFunc(Object.values(docSnap));
+  useEffect(() => {
+    const chosenCategory = Array.isArray(watchCategory) ? watchCategory : [watchCategory];
+    //dont genarate podcategories list if category is not chosen or relations object is undefined
+    if (!chosenCategory[0] || catPodcatRelations === undefined) return;
+    //generate podcategory list according to chosen category
+    const podcategoriesOfCategory = catPodcatRelations[chosenCategory[0]]?.podcategories;
+    setPodcategoriesList(Object.keys(podcategoriesOfCategory));
+    //reset chosen podcategories if category has changed
+    if (prevChosenCategory[0] !== chosenCategory[0]) {
+      setValue("podcategory", []);
+      setPrevChosenCategory(chosenCategory);
+    }
+  }, [watchCategory, catPodcatRelations]);
+
+  useEffect(() => {
+    fetchCollection("collection", setCollectionArray);
+    fetchCollection("color", setColorArray);
+    fetchCollection("size", setSizeArray);
+  }, []);
+
+  const fetchCollection = async (categoryName, saveFunc) => {
+    const data = (await getDoc(doc(db, "types", categoryName))).data();
+    saveFunc(data.array);
   };
 
   return (
@@ -183,11 +126,11 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
             <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)" }}>
               <ControlledInput control={control} formName="name" label="Product name" />
               <ControlledInput control={control} formName="price" label="Price" type="number" />
-              <ControlledMultipleSelect control={control} formName="sex" itemsArray={sexArray} />
-              <ControlledMultipleSelect control={control} formName="category" itemsArray={categoryArray} />
-              <ControlledMultipleSelect control={control} formName="podcategory" itemsArray={podcategoryArray} />
-              <ControlledMultipleSelect control={control} formName="sizes" itemsArray={sizeArray} />
-              <ControlledMultipleSelect control={control} formName="colors" itemsArray={colorArray} />
+              <ControlledSelect control={control} formName="collection" itemsArray={collectionArray} multiple={true} />
+              <ControlledSelect control={control} formName="sizes" itemsArray={sizeArray} multiple={true} />
+              <ControlledSelect control={control} formName="category" itemsArray={categoriesList} />
+              <ControlledSelect control={control} formName="podcategory" itemsArray={podcategoriesList} multiple={true} />
+              <ControlledSelect control={control} formName="colors" itemsArray={colorArray} multiple={true} />
             </Box>
             <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)", marginTop: "40px" }}>
               <ControlledInput control={control} formName="frontImage" label="Front image URL" wide />
@@ -225,11 +168,11 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
                         <Box component="span" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "300px" }}>
                           {field.src}
                         </Box>
-                        <ControlledTooltip textToCopy={field.src}>
+                        <StyledTooltip textToCopy={field.src}>
                           <Button size="small" sx={{ ml: 3 }}>
                             Copy
                           </Button>
-                        </ControlledTooltip>
+                        </StyledTooltip>
                         <Button
                           variant="contained"
                           startIcon={<DeleteIcon />}

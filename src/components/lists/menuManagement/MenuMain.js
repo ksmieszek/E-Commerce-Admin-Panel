@@ -1,7 +1,8 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState, useEffect } from "react";
 import MenuCategory from "./MenuCategory";
-import MenuForm from "../../forms/menuManagement/MenuForm";
+import MenuCategoryForm from "components/forms/menuManagement/MenuCategoryForm";
+import MenuMainForm from "components/forms/menuManagement/MenuMainForm";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
@@ -19,10 +20,7 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
   };
   const onSubmit = () => {
     const updatedArray = [...menusFields].map((item) => {
-      if (item.id === menuMain.id) {
-        item.categories = categoriesFields;
-        return item;
-      }
+      if (item.id === menuMain.id) item.categories = categoriesFields;
       return item;
     });
     menusReplace(updatedArray);
@@ -32,30 +30,22 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
   useEffect(() => {
     const categoriesArray = [];
     menuMain.categories?.forEach(async (item) => {
-      categoriesArray.push({ title: item.title, link: item.link, order: item.order, podcategories: item.podcategories || [] });
+      categoriesArray.push({ title: item.title, link: item.link, order: item.order, podcategories: item.podcategories || [], key: item.key });
     });
     categoriesReplace(categoriesArray);
   }, []);
 
   const [showForm, setShowForm] = useState(false);
-  const [editItemValues, setEditItemValues] = useState(undefined);
+  const [isCategory, setIsCategory] = useState(false);
+  const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
   const [subListCollapsed, setSubListCollapsed] = useState(false);
 
-  const action = (values) => {
-    if (values.id) editItem(values);
-    else addMenuCategory(values);
-  };
-
-  const deleteItem = () => {
-    deleteMenuMain(menuMain.id);
-  };
   const editItem = (values) => {
     const updatedArray = [...menusFields].map((item) => {
       if (item.id === menuMain.id) {
         item.order = values.order;
         item.title = values.title;
-        item.link = values.link;
       }
       return item;
     });
@@ -63,17 +53,21 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
     menusReplace(updatedArray);
     submitAllMenus();
   };
+  const deleteItem = () => {
+    deleteMenuMain(menuMain.id);
+  };
 
   const addMenuCategory = (values) => {
     const menusArrayCopy = [...menusFields];
     const menuMainIndex = menusFields.findIndex((item) => item.id === menuMain.id);
-    const { order, title, link } = values;
+    const { order, title, link, key } = values;
     const newCategoriesArray = [
       ...categoriesFields,
       {
         order,
         title,
         link,
+        key,
         podcategories: [],
       },
     ];
@@ -89,9 +83,11 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
     submitAllMenus();
   };
 
-  const deleteAction = (e) => {
+  const addAction = (e) => {
     e.stopPropagation();
-    deleteItem();
+    setEditItemValues({});
+    setIsCategory(true);
+    setShowForm(true);
   };
   const editAction = (e) => {
     e.stopPropagation();
@@ -100,13 +96,14 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
       order: menuMain.order,
       title: menuMain.title,
       link: menuMain.link,
+      key: menuMain.key,
     });
+    setIsCategory(false);
     setShowForm(true);
   };
-  const addAction = (e) => {
+  const deleteAction = (e) => {
     e.stopPropagation();
-    setEditItemValues({});
-    setShowForm(true);
+    deleteItem();
   };
 
   return (
@@ -159,13 +156,26 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
                   categoriesReplace={categoriesReplace}
                   submitChanges={submitMenuMain}
                   deleteMenuCategory={deleteMenuCategory}
+                  menuMainKey={menuMain.key}
                 />
               ))}
             </Collapse>
           </List>
         </Collapse>
       </List>
-      {showForm && <MenuForm save={action} setShowForm={setShowForm} editValues={editItemValues} />}
+      {showForm ? (
+        isCategory ? (
+          <MenuCategoryForm
+            save={addMenuCategory}
+            setShowForm={setShowForm}
+            editValues={editItemValues}
+            menuMainKey={menuMain.key}
+            isCategory={true}
+          />
+        ) : (
+          <MenuMainForm save={editItem} setShowForm={setShowForm} editValues={editItemValues} />
+        )
+      ) : null}
     </>
   );
 };

@@ -1,8 +1,8 @@
 const routes = {
   root: "/",
   products: "/products",
-  categories: "/categories",
-  menuLinks: "/menuLinks",
+  collections: "/collections",
+  menuManagement: "/menu-management",
 };
 
 export default routes;

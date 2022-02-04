@@ -38,15 +38,7 @@ export const mainListItems = (
         <ListItemText primary="Products" />
       </ListItem>
     </StyledLink>
-    <StyledLink to={routes.categories}>
-      <ListItem button>
-        <ListItemIcon>
-          <CategoryIcon />
-        </ListItemIcon>
-        <ListItemText primary="Categories" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.menuLinks}>
+    <StyledLink to={routes.menuManagement}>
       <ListItem button>
         <ListItemIcon>
           <LayersIcon />
@@ -75,8 +67,16 @@ export const mainListItems = (
 
 export const secondaryListItems = (
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
-    <ListItem button>
+    {/* <ListSubheader inset>Saved reports</ListSubheader> */}
+    <StyledLink to={routes.collections}>
+      <ListItem button>
+        <ListItemIcon>
+          <CategoryIcon />
+        </ListItemIcon>
+        <ListItemText primary="Collecions" />
+      </ListItem>
+    </StyledLink>
+    {/* <ListItem button>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
@@ -93,6 +93,6 @@ export const secondaryListItems = (
         <AssignmentIcon />
       </ListItemIcon>
       <ListItemText primary="Year-end sale" />
-    </ListItem>
+    </ListItem> */}
   </div>
 );

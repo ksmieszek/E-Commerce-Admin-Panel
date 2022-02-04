@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import routes from "routes";
 import Login from "views/Login";
 import Products from "views/Products";
-import Categories from "views/Categories";
+import Collections from "views/Collections";
 import MenuManagement from "./MenuManagement";
 import DashboardTemplate from "templates/mui/dashboard/Dashboard";
 import MainTemplate from "templates/mainTemplate/MainTemplate";
@@ -20,8 +20,8 @@ function App() {
             <DashboardTemplate>
               <Routes>
                 <Route path={routes.products} element={<Products />} />
-                <Route path={routes.categories} element={<Categories />} />
-                <Route path={routes.menuLinks} element={<MenuManagement />} />
+                <Route path={routes.collections} element={<Collections />} />
+                <Route path={routes.menuManagement} element={<MenuManagement />} />
               </Routes>
             </DashboardTemplate>
           )}

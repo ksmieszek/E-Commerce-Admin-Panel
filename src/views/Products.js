@@ -30,8 +30,8 @@ const Products = () => {
       const productsArray = [];
       const querySnapshot = await getDocs(collection(db, "products"));
       querySnapshot.forEach((doc) => {
-        const { name, price, frontImage, backImage, category, podcategory, images, colors, sizes, sex } = doc.data();
-        productsArray.push({ id: doc.id, name, price, frontImage, backImage, category, podcategory, images, colors, sizes, sex });
+        const { name, price, frontImage, backImage, category, podcategory, images, colors, sizes, collection } = doc.data();
+        productsArray.push({ id: doc.id, name, price, frontImage, backImage, category, podcategory, images, colors, sizes, collection });
       });
       productsReplace(productsArray);
     })();
@@ -41,16 +41,17 @@ const Products = () => {
     if (values.id) editItem(values);
     else addItem(values);
   };
-  const addItem = async ({ id, ...rest }) => {
+  const addItem = async ({ id, category, ...rest }) => {
     addDoc(collection(db, "products"), {
       ...rest,
+      category: [category],
     }).then((res) => {
-      productPrepend({ id: res.id, ...rest });
+      productPrepend({ id: res.id, category: [category], ...rest });
     });
   };
-  const editItem = async ({ id, ...rest }) => {
-    setDoc(doc(db, "products", id), { ...rest }, { merge: true }).then(() => {
-      productsReplace([...productsFields].map((item) => (item.id === id ? { id, ...rest } : item)));
+  const editItem = async ({ id, category, ...rest }) => {
+    setDoc(doc(db, "products", id), { ...rest, category: [category] }, { merge: true }).then(() => {
+      productsReplace([...productsFields].map((item) => (item.id === id ? { id, category: [category], ...rest } : item)));
     });
   };
   const deleteItem = (e, params) => {
@@ -97,12 +98,14 @@ const Products = () => {
       field: "category",
       headerName: "Category",
       width: 200,
+      sortable: false,
       renderCell: (params) => <p style={{ whiteSpace: "normal" }}>{params.value.join(", ")}</p>,
     },
     {
       field: "podcategory",
       headerName: "Podcategory",
       width: 200,
+      sortable: false,
       renderCell: (params) => <p style={{ whiteSpace: "normal" }}>{params.value.join(", ")}</p>,
     },
     {

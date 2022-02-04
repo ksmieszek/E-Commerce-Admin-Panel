@@ -1,6 +1,6 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { useState, useEffect } from "react";
-import MenuForm from "../../forms/menuManagement/MenuForm";
+import MenuCategoryForm from "components/forms/menuManagement/MenuCategoryForm";
 import MenuPodcategory from "./MenuPodcategory";
 import List from "@mui/material/List";
 import ListItemText from "@mui/material/ListItemText";
@@ -11,20 +11,21 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
 
-const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMenuCategory, submitChanges }) => {
+const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMenuCategory, submitChanges, menuMainKey }) => {
   const { control } = useForm();
   const { fields: podcategoriesFields, replace: podcategoriesReplace } = useFieldArray({ control, name: "podcategories" });
 
   useEffect(() => {
     const podcategoriesArray = [];
     category.podcategories?.forEach((item) => {
-      podcategoriesArray.push({ title: item.title, link: item.link, order: item.order });
+      podcategoriesArray.push({ title: item.title, link: item.link, order: item.order, key: item.key });
     });
     podcategoriesReplace(podcategoriesArray);
   }, []);
 
   const [showForm, setShowForm] = useState(false);
-  const [editItemValues, setEditItemValues] = useState(undefined);
+  const [isCategory, setIsCategory] = useState(false);
+  const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
   const [subListCollapsed, setSubListCollapsed] = useState(false);
 
@@ -33,26 +34,35 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
     else addPodcategory(values);
   };
 
-  const deleteItem = () => {
-    const updatedArray = [...categoriesFields].filter((item) => item.id !== category.id && item);
-    deleteMenuCategory(updatedArray);
-  };
   const editItem = (values) => {
     const updatedArray = [...categoriesFields].map((item) => {
       if (item.id === category.id) {
         item.order = values.order;
         item.title = values.title;
-        item.link = values.link;
       }
       return item;
     });
     categoriesReplace(updatedArray);
     submitChanges();
   };
+  const deleteItem = () => {
+    const updatedArray = [...categoriesFields].filter((item) => item.id !== category.id && item);
+    deleteMenuCategory(updatedArray);
+  };
 
-  const deletePodcategory = (newPodcategoriesArray) => {
+  const addPodcategory = (values) => {
     const categoriesArrayCopy = [...categoriesFields];
     const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
+    const { order, title, link, key } = values;
+    const newPodcategoriesArray = [
+      ...podcategoriesFields,
+      {
+        order,
+        title,
+        link,
+        key,
+      },
+    ];
     categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
     categoriesReplace(categoriesArrayCopy);
     submitChanges();
@@ -64,26 +74,19 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
     categoriesReplace(categoriesArrayCopy);
     submitChanges();
   };
-  const addPodcategory = (values) => {
+  const deletePodcategory = (newPodcategoriesArray) => {
     const categoriesArrayCopy = [...categoriesFields];
     const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
-    const { order, title, link } = values;
-    const newPodcategoriesArray = [
-      ...podcategoriesFields,
-      {
-        order,
-        title,
-        link,
-      },
-    ];
     categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
     categoriesReplace(categoriesArrayCopy);
     submitChanges();
   };
 
-  const deleteAction = (e) => {
+  const addAction = (e) => {
     e.stopPropagation();
-    deleteItem();
+    setEditItemValues({});
+    setIsCategory(false);
+    setShowForm(true);
   };
   const editAction = (e) => {
     e.stopPropagation();
@@ -92,13 +95,14 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
       order: category.order,
       title: category.title,
       link: category.link,
+      key: category.key,
     });
+    setIsCategory(true);
     setShowForm(true);
   };
-  const addAction = (e) => {
+  const deleteAction = (e) => {
     e.stopPropagation();
-    setEditItemValues({});
-    setShowForm(true);
+    deleteItem();
   };
 
   return (
@@ -134,12 +138,23 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
                   podcategoriesFields={podcategoriesFields}
                   deletePodcategory={deletePodcategory}
                   editPodcategory={editPodcategory}
+                  menuCategoryKey={category.key}
+                  menuMainKey={menuMainKey}
                 />
               ))}
           </Collapse>
         </List>
       </Collapse>
-      {showForm && <MenuForm save={action} setShowForm={setShowForm} editValues={editItemValues} />}
+      {showForm && (
+        <MenuCategoryForm
+          save={action}
+          setShowForm={setShowForm}
+          editValues={editItemValues}
+          menuMainKey={menuMainKey}
+          menuCategoryKey={category.key}
+          isCategory={isCategory}
+        />
+      )}
     </>
   );
 };

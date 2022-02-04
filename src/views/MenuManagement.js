@@ -3,7 +3,7 @@ import { db } from "firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
 import MenuMain from "components/lists/menuManagement/MenuMain";
-import MenuForm from "components/forms/menuManagement/MenuForm";
+import MenuMainForm from "components/forms/menuManagement/MenuMainForm";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
@@ -36,24 +36,25 @@ const MenuManagement = () => {
     })();
   }, []);
 
-  const deleteMenuMain = (id) => {
-    const updatedArray = [...menusFields].filter((item) => item.id !== id);
-    menusReplace(updatedArray);
-    submitAllMenus();
-  };
   const addMenuMain = (values) => {
-    const { order, title, link } = values;
+    const { order, title, link, key } = values;
     const newMenusArray = [
       ...menusFields,
       {
         order,
         title,
         link,
+        key,
         categories: [],
       },
     ];
     setShowForm(false);
     menusReplace(newMenusArray);
+    submitAllMenus();
+  };
+  const deleteMenuMain = (id) => {
+    const updatedArray = [...menusFields].filter((item) => item.id !== id);
+    menusReplace(updatedArray);
     submitAllMenus();
   };
 
@@ -85,7 +86,7 @@ const MenuManagement = () => {
           />
         ))}
       </Box>
-      {showForm && <MenuForm save={addMenuMain} setShowForm={setShowForm} />}
+      {showForm && <MenuMainForm save={addMenuMain} setShowForm={setShowForm} />}
     </Box>
   );
 };

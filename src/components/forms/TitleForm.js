@@ -9,22 +9,19 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 
 let schema = yup.object().shape({
-  key: yup.string().trim().required("Key is a required field"),
-  value: yup.string().trim().required("Value is a required field"),
+  title: yup.string().trim().required("Title is a required field"),
 });
 
-const CategoryFieldForm = ({ save, setShowForm, editValues }) => {
+const TitleForm = ({ save, setShowForm, editValues }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
-      id: editValues?.id || null,
-      key: editValues?.key || "",
-      value: editValues?.value || "",
+      title: editValues?.title || "",
     },
     resolver: yupResolver(schema),
   });
 
   const onSubmit = (data) => {
-    save(data);
+    save(data.title);
     setShowForm(false);
   };
 
@@ -38,34 +35,19 @@ const CategoryFieldForm = ({ save, setShowForm, editValues }) => {
       aria-describedby="alert-dialog-description"
     >
       <Box component="form" noValidate autoComplete="off" sx={{ pt: 3 }}>
-        <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
+        <DialogContent sx={{ display: "flex", justifyContent: "left" }}>
           <Controller
-            name="key"
+            name="title"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <TextField
                 {...field}
                 error={Boolean(error)}
                 helperText={error?.message}
-                label="Key"
+                label="Title"
                 id="standard-error-helper-text"
                 variant="standard"
-                sx={{ width: "200px" }}
-              />
-            )}
-          />
-          <Controller
-            name="value"
-            control={control}
-            render={({ field, fieldState: { error } }) => (
-              <TextField
-                {...field}
-                error={Boolean(error)}
-                helperText={error?.message}
-                label="Value"
-                id="standard-error-helper-text"
-                variant="standard"
-                sx={{ width: "200px" }}
+                sx={{ ml: "30px", width: "300px" }}
               />
             )}
           />
@@ -81,4 +63,4 @@ const CategoryFieldForm = ({ save, setShowForm, editValues }) => {
   );
 };
 
-export default CategoryFieldForm;
+export default TitleForm;

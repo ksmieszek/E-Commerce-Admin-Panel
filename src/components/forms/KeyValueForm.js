@@ -9,37 +9,30 @@ import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 
 let schema = yup.object().shape({
-  order: yup
-    .number("Order must be a number")
-    .positive("Order must be a positive number")
-    .integer("Order must be an integer")
-    .typeError("Order must be a number")
-    .required("Order is a required field"),
-  title: yup.string().trim().required("Title is a required field"),
-  link: yup.string().trim().required("Link is a required field"),
+  key: yup.string().trim().required("Key is a required field"),
+  value: yup.string().trim().required("Name is a required field"),
 });
 
-const MenuForm = ({ save, setShowForm, editValues }) => {
+const KeyValueForm = ({ save, setShowForm, editValues }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
       id: editValues?.id || null,
-      order: editValues?.order || 0,
-      title: editValues?.title || "",
-      link: editValues?.link || "",
+      key: editValues?.key || "",
+      value: editValues?.value || "",
     },
     resolver: yupResolver(schema),
   });
 
   const onSubmit = (data) => {
-    const { id, order, title, link } = data;
-    save({ id, order, title, link });
+    save(data);
+    setShowForm(false);
   };
 
   return (
     <Dialog
       open={true}
       fullWidth={true}
-      maxWidth="md"
+      maxWidth="sm"
       onClose={() => setShowForm(false)}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
@@ -47,15 +40,14 @@ const MenuForm = ({ save, setShowForm, editValues }) => {
       <Box component="form" noValidate autoComplete="off" sx={{ pt: 3 }}>
         <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
           <Controller
-            name="order"
+            name="key"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <TextField
                 {...field}
                 error={Boolean(error)}
                 helperText={error?.message}
-                type="number"
-                label="Order"
+                label="Key"
                 id="standard-error-helper-text"
                 variant="standard"
                 sx={{ width: "200px" }}
@@ -63,29 +55,14 @@ const MenuForm = ({ save, setShowForm, editValues }) => {
             )}
           />
           <Controller
-            name="title"
+            name="value"
             control={control}
             render={({ field, fieldState: { error } }) => (
               <TextField
                 {...field}
                 error={Boolean(error)}
                 helperText={error?.message}
-                label="Title"
-                id="standard-error-helper-text"
-                variant="standard"
-                sx={{ width: "200px" }}
-              />
-            )}
-          />
-          <Controller
-            name="link"
-            control={control}
-            render={({ field, fieldState: { error } }) => (
-              <TextField
-                {...field}
-                error={Boolean(error)}
-                helperText={error?.message}
-                label="Link"
+                label="Name"
                 id="standard-error-helper-text"
                 variant="standard"
                 sx={{ width: "200px" }}
@@ -104,4 +81,4 @@ const MenuForm = ({ save, setShowForm, editValues }) => {
   );
 };
 
-export default MenuForm;
+export default KeyValueForm;
