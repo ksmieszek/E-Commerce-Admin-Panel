@@ -11,6 +11,7 @@ import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
 import { useForm, useFieldArray } from "react-hook-form";
+import { useDialog } from "hooks/useDialog";
 
 const Products = () => {
   const { control } = useForm();
@@ -24,6 +25,7 @@ const Products = () => {
   const [pageSize, setPageSize] = useState(5);
   const [showForm, setShowForm] = useState(false);
   const [editValues, setEditValues] = useState({});
+  const { setOpenDialog, setDialogAction } = useDialog();
 
   useEffect(() => {
     (async () => {
@@ -56,10 +58,13 @@ const Products = () => {
   };
   const deleteItem = (e, params) => {
     e.stopPropagation();
-    const idInList = params.getValue(params.id, "idInList");
-    const productId = params.getValue(params.id, "id");
-    const indexInList = productsFields.findIndex((item) => item.idInList === idInList);
-    deleteDoc(doc(db, "products", productId)).then(() => productsRemove(indexInList));
+    setDialogAction(() => () => {
+      const idInList = params.getValue(params.id, "idInList");
+      const productId = params.getValue(params.id, "id");
+      const indexInList = productsFields.findIndex((item) => item.idInList === idInList);
+      deleteDoc(doc(db, "products", productId)).then(() => productsRemove(indexInList));
+    });
+    setOpenDialog(true);
   };
 
   const addAction = async (e) => {

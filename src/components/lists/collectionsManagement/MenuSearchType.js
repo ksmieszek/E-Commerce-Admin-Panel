@@ -4,11 +4,13 @@ import { doc, setDoc, updateDoc, deleteField } from "firebase/firestore";
 import KeyValueForm from "components/forms/KeyValueForm";
 import TitleForm from "components/forms/TitleForm";
 import StyledList from "./StyledList";
+import { useDialog } from "hooks/useDialog";
 
 const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation }) => {
   const [fields, setFields] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editValues, setEditValues] = useState(undefined);
+  const { setOpenDialog, setDialogAction } = useDialog();
 
   useEffect(() => {
     (async () => {
@@ -57,20 +59,23 @@ const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation }) 
   };
   const removeField = (e, fieldIndex) => {
     e.stopPropagation();
-    const fieldsArray = [...fields];
-    fieldsArray.splice(fieldIndex, 1);
-    const podcategories = [...fieldsArray].reduce(
-      (previousValue, currentValue) => Object.assign(previousValue, { [currentValue.key]: currentValue.value }),
-      {}
-    );
-    const docRef = doc(db, "relations", "categoryPodcategory");
-    updateDoc(docRef, {
-      [relationKey]: {
-        name: relation.name,
-        podcategories,
-      },
+    setDialogAction(() => () => {
+      const fieldsArray = [...fields];
+      fieldsArray.splice(fieldIndex, 1);
+      const podcategories = [...fieldsArray].reduce(
+        (previousValue, currentValue) => Object.assign(previousValue, { [currentValue.key]: currentValue.value }),
+        {}
+      );
+      const docRef = doc(db, "relations", "categoryPodcategory");
+      updateDoc(docRef, {
+        [relationKey]: {
+          name: relation.name,
+          podcategories,
+        },
+      });
+      setFields(fieldsArray);
     });
-    setFields(fieldsArray);
+    setOpenDialog(true);
   };
 
   const addAction = (e) => {
@@ -85,13 +90,16 @@ const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation }) 
     });
     setShowForm(true);
   };
-  const deleteAction = async (e) => {
+  const deleteAction = (e) => {
     e.stopPropagation();
-    const docRef = doc(db, "relations", "categoryPodcategory");
-    await updateDoc(docRef, {
-      [relationKey]: deleteField(),
+    setDialogAction(() => async () => {
+      const docRef = doc(db, "relations", "categoryPodcategory");
+      await updateDoc(docRef, {
+        [relationKey]: deleteField(),
+      });
+      deleteRelation(indexInList);
     });
-    deleteRelation(indexInList);
+    setOpenDialog(true);
   };
 
   return (

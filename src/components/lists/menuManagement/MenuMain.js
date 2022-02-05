@@ -11,6 +11,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
+import { useDialog } from "hooks/useDialog";
 
 const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitAllMenus }) => {
   const { handleSubmit, control } = useForm();
@@ -40,6 +41,7 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
   const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
   const [subListCollapsed, setSubListCollapsed] = useState(false);
+  const { setOpenDialog, setDialogAction } = useDialog();
 
   const editItem = (values) => {
     const updatedArray = [...menusFields].map((item) => {
@@ -54,7 +56,10 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
     submitAllMenus();
   };
   const deleteItem = () => {
-    deleteMenuMain(menuMain.id);
+    setDialogAction(() => () => {
+      deleteMenuMain(menuMain.id);
+    });
+    setOpenDialog(true);
   };
 
   const addMenuCategory = (values) => {

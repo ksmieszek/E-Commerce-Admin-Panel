@@ -3,10 +3,12 @@ import { db } from "firebase";
 import { doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
 import StyledList from "./StyledList";
 import TitleForm from "components/forms/TitleForm";
+import { useDialog } from "hooks/useDialog";
 
 const ProductType = ({ category }) => {
   const [fields, setFields] = useState(category.value.array);
   const [showForm, setShowForm] = useState(false);
+  const { setOpenDialog, setDialogAction } = useDialog();
 
   const addField = async (value) => {
     await updateDoc(doc(db, "types", category.key), {
@@ -15,14 +17,17 @@ const ProductType = ({ category }) => {
     setFields([...fields, value]);
   };
 
-  const removeField = async (e, index) => {
+  const removeField = (e, index) => {
     e.stopPropagation();
-    await updateDoc(doc(db, "types", category.key), {
-      array: arrayRemove(fields[index]),
+    setDialogAction(() => async () => {
+      await updateDoc(doc(db, "types", category.key), {
+        array: arrayRemove(fields[index]),
+      });
+      const fieldsArray = [...fields];
+      fieldsArray.splice(index, 1);
+      setFields(fieldsArray);
     });
-    const fieldsArray = [...fields];
-    fieldsArray.splice(index, 1);
-    setFields(fieldsArray);
+    setOpenDialog(true);
   };
 
   const addAction = (e) => {

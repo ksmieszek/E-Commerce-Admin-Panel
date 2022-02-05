@@ -10,6 +10,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
+import { useDialog } from "hooks/useDialog";
 
 const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMenuCategory, submitChanges, menuMainKey }) => {
   const { control } = useForm();
@@ -28,6 +29,7 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
   const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
   const [subListCollapsed, setSubListCollapsed] = useState(false);
+  const { setOpenDialog, setDialogAction } = useDialog();
 
   const action = (values) => {
     if (values.id) editItem(values);
@@ -45,9 +47,13 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
     categoriesReplace(updatedArray);
     submitChanges();
   };
-  const deleteItem = () => {
-    const updatedArray = [...categoriesFields].filter((item) => item.id !== category.id && item);
-    deleteMenuCategory(updatedArray);
+  const deleteItem = (e) => {
+    e.stopPropagation();
+    setDialogAction(() => () => {
+      const updatedArray = [...categoriesFields].filter((item) => item.id !== category.id && item);
+      deleteMenuCategory(updatedArray);
+    });
+    setOpenDialog(true);
   };
 
   const addPodcategory = (values) => {
@@ -100,16 +106,12 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
     setIsCategory(true);
     setShowForm(true);
   };
-  const deleteAction = (e) => {
-    e.stopPropagation();
-    deleteItem();
-  };
 
   return (
     <>
       <StyledListItemButton onClick={() => setListCollapsed(!listCollapsed)}>
         <ListItemText primary={category.title} />
-        <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteAction(e)} />
+        <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteItem(e)} />
         <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editAction(e)} />
         <StyledExpand listCollapsed={listCollapsed} />
       </StyledListItemButton>

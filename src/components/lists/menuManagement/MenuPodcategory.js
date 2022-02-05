@@ -7,11 +7,13 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
+import { useDialog } from "hooks/useDialog";
 
 const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, editPodcategory, menuCategoryKey, menuMainKey }) => {
   const [showForm, setShowForm] = useState(false);
   const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
+  const { setOpenDialog, setDialogAction } = useDialog();
 
   const editItem = (values) => {
     const updatedArray = [...podcategoriesFields].map((item) => {
@@ -24,9 +26,13 @@ const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, 
     setShowForm(false);
     editPodcategory(updatedArray);
   };
-  const deleteItem = () => {
-    const updatedArray = [...podcategoriesFields].filter((item) => item.id !== podcategory.id && item);
-    deletePodcategory(updatedArray);
+  const deleteItem = (e) => {
+    e.stopPropagation();
+    setDialogAction(() => () => {
+      const updatedArray = [...podcategoriesFields].filter((item) => item.id !== podcategory.id && item);
+      deletePodcategory(updatedArray);
+    });
+    setOpenDialog(true);
   };
 
   const editAction = (e) => {
