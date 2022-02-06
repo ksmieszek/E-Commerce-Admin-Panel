@@ -14,8 +14,15 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const observer = auth.onAuthStateChanged(async (user) => {
-      if (user !== null) setUid(user.uid);
-      else setUid(undefined);
+      if (user !== null) {
+        const findUser = await getDoc(doc(db, `users`, user.uid));
+        if (findUser.exists()) {
+          if (findUser.data().roles.admin === true) setUid(user.uid);
+          else setUid(undefined);
+        }
+      } else {
+        setUid(undefined);
+      }
       setLoading(false);
     });
     return observer;
@@ -23,24 +30,11 @@ const AuthProvider = ({ children }) => {
 
   const SignIn = () => {
     provider.setCustomParameters({ prompt: "select_account" });
-    signInWithPopup(auth, provider)
-      .then(async (result) => {
-        const uid = result.user.uid;
-        const findUser = await getDoc(doc(db, `users`, uid));
-        if (findUser.exists()) {
-          if (findUser.data().roles.admin) {
-            setUid(uid);
-            return;
-          }
-        }
-      })
-      .catch((error) => {});
+    signInWithPopup(auth, provider);
   };
 
-  const SignOut = async () => {
-    auth.signOut().catch((error) => {
-      console.log("An error happened.");
-    });
+  const SignOut = () => {
+    auth.signOut();
   };
 
   return <AuthContext.Provider value={{ uid, SignIn, SignOut }}>{!loading && children}</AuthContext.Provider>;
