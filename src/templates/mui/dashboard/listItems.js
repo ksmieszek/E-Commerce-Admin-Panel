@@ -7,6 +7,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 import CategoryIcon from "@mui/icons-material/Category";
 import CheckroomIcon from "@mui/icons-material/Checkroom";
 import LayersIcon from "@mui/icons-material/Layers";
@@ -74,6 +75,14 @@ export const secondaryListItems = (
           <CategoryIcon />
         </ListItemIcon>
         <ListItemText primary="Collecions" />
+      </ListItem>
+    </StyledLink>
+    <StyledLink to={routes.photos}>
+      <ListItem button>
+        <ListItemIcon>
+          <InsertPhotoIcon />
+        </ListItemIcon>
+        <ListItemText primary="Photos" />
       </ListItem>
     </StyledLink>
     {/* <ListItem button>

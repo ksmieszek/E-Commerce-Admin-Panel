@@ -98,7 +98,12 @@ const Products = () => {
       width: 250,
       renderCell: (params) => <p style={{ whiteSpace: "normal" }}>{params.value}</p>,
     },
-
+    {
+      field: "collection",
+      headerName: "Product name",
+      width: 200,
+      renderCell: (params) => <p style={{ whiteSpace: "normal" }}>{params.value.join(", ")}</p>,
+    },
     {
       field: "category",
       headerName: "Category",
@@ -116,7 +121,7 @@ const Products = () => {
     {
       field: "price",
       headerName: "Price(PLN)",
-      width: 200,
+      width: 180,
       type: "number",
       headerAlign: "left",
       align: "left",
@@ -149,7 +154,7 @@ const Products = () => {
         Add product
       </Button>
 
-      <div style={{ height: 1130, width: 1350, marginTop: "40px" }}>
+      <div style={{ height: 1130, width: 1500, marginTop: "40px" }}>
         <DataGrid
           rowHeight={200}
           rows={productsFields}

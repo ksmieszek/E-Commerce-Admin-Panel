@@ -4,6 +4,7 @@ import Login from "views/Login";
 import Products from "views/Products";
 import Collections from "views/Collections";
 import MenuManagement from "./MenuManagement";
+import Photos from "./Photos";
 import DashboardTemplate from "templates/mui/dashboard/Dashboard";
 import MainTemplate from "templates/mainTemplate/MainTemplate";
 import { useAuth } from "hooks/useAuth";
@@ -22,6 +23,7 @@ function App() {
                 <Route path={routes.products} element={<Products />} />
                 <Route path={routes.collections} element={<Collections />} />
                 <Route path={routes.menuManagement} element={<MenuManagement />} />
+                <Route path={routes.photos} element={<Photos />} />
               </Routes>
             </DashboardTemplate>
           )}

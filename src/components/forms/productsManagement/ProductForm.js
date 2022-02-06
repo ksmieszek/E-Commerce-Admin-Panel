@@ -4,7 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Button, TextField, Box } from "@mui/material";
+import { Button, TextField, Box, Typography } from "@mui/material";
 import Stack from "@mui/material/Stack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Dialog from "@mui/material/Dialog";
@@ -13,6 +13,7 @@ import DialogContent from "@mui/material/DialogContent";
 import ControlledSelect from "components/mui/ControlledSelect";
 import ControlledInput from "components/mui/ControlledInput";
 import StyledTooltip from "components/mui/StyledTooltip";
+import PhotosForm from "components/forms/photosManagement/PhotosForm";
 
 let schema = yup.object().shape({
   frontImage: yup.string().url("Front image has to be URL address").trim().required("Front image name is a required field"),
@@ -77,6 +78,8 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
   const [podcategoriesList, setPodcategoriesList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [prevChosenCategory, setPrevChosenCategory] = useState([watchCategory]);
+  const [showPhotosForm, setShowPhotosForm] = useState(false);
+  const [uploadedPhotos, setUploadedPhotos] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -112,96 +115,125 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
   };
 
   return (
-    <Dialog
-      open={true}
-      fullWidth={false}
-      maxWidth="lg"
-      onClose={() => setShowForm(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <Box sx={{ paddingY: "10px" }}>
-        <DialogContent sx={{ maxWidth: "1000px", paddingX: "25px", paddingTop: "30px" }}>
-          <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-            <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)" }}>
-              <ControlledInput control={control} formName="name" label="Product name" />
-              <ControlledInput control={control} formName="price" label="Price" type="number" />
-              <ControlledSelect control={control} formName="collection" itemsArray={collectionArray} multiple={true} />
-              <ControlledSelect control={control} formName="sizes" itemsArray={sizeArray} multiple={true} />
-              <ControlledSelect control={control} formName="category" itemsArray={categoriesList} />
-              <ControlledSelect control={control} formName="podcategory" itemsArray={podcategoriesList} multiple={true} />
-              <ControlledSelect control={control} formName="colors" itemsArray={colorArray} multiple={true} />
-            </Box>
-            <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)", marginTop: "40px" }}>
-              <ControlledInput control={control} formName="frontImage" label="Front image URL" wide />
-              <ControlledInput control={control} formName="backImage" label="Back image URL" wide />
-            </Box>
-            <Box sx={{ marginTop: "40px" }}>
-              <Stack direction="row">
-                <TextField
-                  label="New photo URL"
-                  size="small"
-                  sx={{ width: "300px" }}
-                  value={newImageUrl}
-                  onChange={(e) => SetNewImageUrl(e.target.value)}
-                  error={Boolean(errors?.images)}
-                  helperText={errors?.images?.length > 0 && "Every image has to be URL address"}
-                />
-                <Button
-                  variant="contained"
-                  sx={{ ml: 5, maxHeight: "40px" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (newImageUrl === "") return;
-                    imagesAppend({ src: newImageUrl });
-                    SetNewImageUrl("");
-                  }}
-                >
-                  add to product images
-                </Button>
-              </Stack>
-              <Box component="div" sx={{ overflowY: "auto", maxHeight: "210px", maxWidth: "600px", mt: "20px" }}>
-                {imagesFields.map((field, index) => (
-                  <Box key={field.id}>
+    <>
+      <Dialog
+        open={true}
+        fullWidth={false}
+        maxWidth="lg"
+        onClose={() => setShowForm(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <Box sx={{ paddingY: "10px" }}>
+          <DialogContent sx={{ maxWidth: "1000px", paddingX: "25px", paddingTop: "30px" }}>
+            <Box component="div" sx={{ mb: 6 }}>
+              <Button variant="contained" onClick={() => setShowPhotosForm(true)}>
+                upload photos to storage
+              </Button>
+              <Box component="div" sx={{ overflowY: "auto", maxHeight: "210px", maxWidth: "500px" }}>
+                {uploadedPhotos.map((photo, index) => (
+                  <Box key={index}>
                     <Stack sx={{ m: 2 }}>
                       <Stack direction="row" sx={{ my: 1 }}>
                         <Box component="span" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "300px" }}>
-                          {field.src}
+                          {photo.url}
                         </Box>
-                        <StyledTooltip textToCopy={field.src}>
+                        <StyledTooltip textToCopy={photo.url}>
                           <Button size="small" sx={{ ml: 3 }}>
                             Copy
                           </Button>
                         </StyledTooltip>
-                        <Button
-                          variant="contained"
-                          startIcon={<DeleteIcon />}
-                          color="error"
-                          size="small"
-                          sx={{ ml: 3 }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            imagesRemove(index);
-                          }}
-                        >
-                          Delete
-                        </Button>
                       </Stack>
                     </Stack>
                   </Box>
                 ))}
               </Box>
             </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 3 }}>
-          <Button onClick={() => setShowForm(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
-            Save
-          </Button>
-        </DialogActions>
-      </Box>
-    </Dialog>
+            <Box component="form" onSubmit={handleSubmit(onSubmit)}>
+              <Typography variant="h6" sx={{ mb: 2 }}>
+                Product form
+              </Typography>
+              <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)" }}>
+                <ControlledInput control={control} formName="name" label="Product name" />
+                <ControlledInput control={control} formName="price" label="Price" type="number" />
+                <ControlledSelect control={control} formName="collection" itemsArray={collectionArray} multiple={true} />
+                <ControlledSelect control={control} formName="sizes" itemsArray={sizeArray} multiple={true} />
+                <ControlledSelect control={control} formName="category" itemsArray={categoriesList} />
+                <ControlledSelect control={control} formName="podcategory" itemsArray={podcategoriesList} multiple={true} />
+                <ControlledSelect control={control} formName="colors" itemsArray={colorArray} multiple={true} />
+              </Box>
+              <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)", marginTop: "40px" }}>
+                <ControlledInput control={control} formName="frontImage" label="Front image URL" wide />
+                <ControlledInput control={control} formName="backImage" label="Back image URL" wide />
+              </Box>
+              <Box sx={{ marginTop: "40px" }}>
+                <Stack direction="row">
+                  <TextField
+                    label="New photo URL"
+                    size="small"
+                    sx={{ width: "300px" }}
+                    value={newImageUrl}
+                    onChange={(e) => SetNewImageUrl(e.target.value)}
+                    error={Boolean(errors?.images)}
+                    helperText={errors?.images?.length > 0 && "Every image has to be URL address"}
+                  />
+                  <Button
+                    variant="contained"
+                    sx={{ ml: 5, maxHeight: "40px" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (newImageUrl === "") return;
+                      imagesAppend({ src: newImageUrl });
+                      SetNewImageUrl("");
+                    }}
+                  >
+                    add to product images
+                  </Button>
+                </Stack>
+                <Box component="div" sx={{ overflowY: "auto", maxHeight: "210px", maxWidth: "600px", mt: "20px" }}>
+                  {imagesFields.map((field, index) => (
+                    <Box key={field.id}>
+                      <Stack sx={{ m: 2 }}>
+                        <Stack direction="row" sx={{ my: 1 }}>
+                          <Box component="span" sx={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "300px" }}>
+                            {field.src}
+                          </Box>
+                          <StyledTooltip textToCopy={field.src}>
+                            <Button size="small" sx={{ ml: 3 }}>
+                              Copy
+                            </Button>
+                          </StyledTooltip>
+                          <Button
+                            variant="contained"
+                            startIcon={<DeleteIcon />}
+                            color="error"
+                            size="small"
+                            sx={{ ml: 3 }}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              imagesRemove(index);
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </Stack>
+                      </Stack>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 3 }}>
+            <Button onClick={() => setShowForm(false)}>Cancel</Button>
+            <Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
+              Save
+            </Button>
+          </DialogActions>
+        </Box>
+      </Dialog>
+      {showPhotosForm && <PhotosForm setShowForm={setShowPhotosForm} save={setUploadedPhotos} />}
+    </>
   );
 };
 
