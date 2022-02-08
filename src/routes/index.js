@@ -4,6 +4,7 @@ const routes = {
   collections: "/collections",
   menuManagement: "/menu-management",
   photos: "/photos",
+  users: "/users",
 };
 
 export default routes;
