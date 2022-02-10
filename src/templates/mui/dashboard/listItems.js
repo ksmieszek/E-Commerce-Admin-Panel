@@ -12,76 +12,56 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LayersIcon from "@mui/icons-material/Layers";
 import { Link } from "react-router-dom";
 import routes from "routes";
-import styled from "styled-components";
-
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  color: inherit;
-`;
 
 export const mainListItems = (
   <div>
-    <StyledLink to={routes.root}>
-      <ListItem button>
-        <ListItemIcon>
-          <DashboardIcon />
-        </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.users}>
-      <ListItem button>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Users" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.orders}>
-      <ListItem button>
-        <ListItemIcon>
-          <ShoppingCartIcon />
-        </ListItemIcon>
-        <ListItemText primary="Orders" />
-      </ListItem>
-    </StyledLink>
+    <ListItem button component={Link} to={routes.root}>
+      <ListItemIcon>
+        <DashboardIcon />
+      </ListItemIcon>
+      <ListItemText primary="Dashboard" />
+    </ListItem>
+    <ListItem button component={Link} to={routes.users}>
+      <ListItemIcon>
+        <PeopleIcon />
+      </ListItemIcon>
+      <ListItemText primary="Users" />
+    </ListItem>
+    <ListItem button component={Link} to={routes.orders}>
+      <ListItemIcon>
+        <ShoppingCartIcon />
+      </ListItemIcon>
+      <ListItemText primary="Orders" />
+    </ListItem>
   </div>
 );
 
 export const secondaryListItems = (
   <div>
     <ListSubheader inset>Management</ListSubheader>
-    <StyledLink to={routes.products}>
-      <ListItem button>
-        <ListItemIcon>
-          <CheckroomIcon />
-        </ListItemIcon>
-        <ListItemText primary="Products" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.menuManagement}>
-      <ListItem button>
-        <ListItemIcon>
-          <LayersIcon />
-        </ListItemIcon>
-        <ListItemText primary="Main menu" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.collections}>
-      <ListItem button>
-        <ListItemIcon>
-          <CategoryIcon />
-        </ListItemIcon>
-        <ListItemText primary="Collecions" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.photos}>
-      <ListItem button>
-        <ListItemIcon>
-          <InsertPhotoIcon />
-        </ListItemIcon>
-        <ListItemText primary="Photos" />
-      </ListItem>
-    </StyledLink>
+    <ListItem button component={Link} to={routes.products}>
+      <ListItemIcon>
+        <CheckroomIcon />
+      </ListItemIcon>
+      <ListItemText primary="Products" />
+    </ListItem>
+    <ListItem button component={Link} to={routes.menuManagement}>
+      <ListItemIcon>
+        <LayersIcon />
+      </ListItemIcon>
+      <ListItemText primary="Main menu" />
+    </ListItem>
+    <ListItem button component={Link} to={routes.collections}>
+      <ListItemIcon>
+        <CategoryIcon />
+      </ListItemIcon>
+      <ListItemText primary="Collecions" />
+    </ListItem>
+    <ListItem button component={Link} to={routes.photos}>
+      <ListItemIcon>
+        <InsertPhotoIcon />
+      </ListItemIcon>
+      <ListItemText primary="Photos" />
+    </ListItem>
   </div>
 );
