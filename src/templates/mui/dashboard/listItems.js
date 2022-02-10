@@ -2,11 +2,13 @@ import * as React from "react";
 import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
+import ListSubheader from "@mui/material/ListSubheader";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 import CategoryIcon from "@mui/icons-material/Category";
 import CheckroomIcon from "@mui/icons-material/Checkroom";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import LayersIcon from "@mui/icons-material/Layers";
 import { Link } from "react-router-dom";
 import routes from "routes";
@@ -27,6 +29,28 @@ export const mainListItems = (
         <ListItemText primary="Dashboard" />
       </ListItem>
     </StyledLink>
+    <StyledLink to={routes.users}>
+      <ListItem button>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Users" />
+      </ListItem>
+    </StyledLink>
+    <StyledLink to={routes.orders}>
+      <ListItem button>
+        <ListItemIcon>
+          <ShoppingCartIcon />
+        </ListItemIcon>
+        <ListItemText primary="Orders" />
+      </ListItem>
+    </StyledLink>
+  </div>
+);
+
+export const secondaryListItems = (
+  <div>
+    <ListSubheader inset>Management</ListSubheader>
     <StyledLink to={routes.products}>
       <ListItem button>
         <ListItemIcon>
@@ -43,11 +67,6 @@ export const mainListItems = (
         <ListItemText primary="Main menu" />
       </ListItem>
     </StyledLink>
-  </div>
-);
-
-export const secondaryListItems = (
-  <div>
     <StyledLink to={routes.collections}>
       <ListItem button>
         <ListItemIcon>
@@ -62,14 +81,6 @@ export const secondaryListItems = (
           <InsertPhotoIcon />
         </ListItemIcon>
         <ListItemText primary="Photos" />
-      </ListItem>
-    </StyledLink>
-    <StyledLink to={routes.users}>
-      <ListItem button>
-        <ListItemIcon>
-          <PeopleIcon />
-        </ListItemIcon>
-        <ListItemText primary="Users" />
       </ListItem>
     </StyledLink>
   </div>
