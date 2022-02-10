@@ -11,6 +11,7 @@ import { db } from "firebase";
 import { doc, getDoc } from "firebase/firestore";
 import ControlledSelect from "components/mui/ControlledSelect";
 import ControlledInput from "components/mui/ControlledInput";
+import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
 
 let schema = yup.object().shape({
   order: yup
@@ -54,28 +55,18 @@ const MenuCategoryForm = ({ save, setShowForm, editValues, menuMainKey, menuCate
   }, []);
 
   return (
-    <Dialog
-      open={true}
-      fullWidth={true}
+    <DialogFormTemplate
       maxWidth="lg"
+      title={isCategory ? "Manage category" : "Manage podcategory"}
       onClose={() => setShowForm(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
+      submit={handleSubmit(onSubmit)}
     >
-      <Box component="form" noValidate autoComplete="off" sx={{ pt: 3 }}>
-        <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
-          <ControlledInput control={control} formName="order" label="Order" type="number" />
-          <ControlledInput control={control} formName="title" label="Title" />
-          {Object.keys(editValues).length === 0 && <ControlledSelect control={control} formName="category" itemsArray={selectList} />}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 3 }}>
-          <Button onClick={() => setShowForm(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
-            Save
-          </Button>
-        </DialogActions>
-      </Box>
-    </Dialog>
+      <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
+        <ControlledInput control={control} formName="order" label="Order" type="number" />
+        <ControlledInput control={control} formName="title" label="Title" />
+        {Object.keys(editValues).length === 0 && <ControlledSelect control={control} formName="category" itemsArray={selectList} />}
+      </DialogContent>
+    </DialogFormTemplate>
   );
 };
 

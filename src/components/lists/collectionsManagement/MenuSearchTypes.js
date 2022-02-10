@@ -70,7 +70,7 @@ const MenuSearchTypes = () => {
           <MenuSearchType key={item.key} relation={item.value} relationKey={item.key} indexInList={index} deleteRelation={deleteItem} />
         ))}
       </Box>
-      {showForm && <KeyValueForm save={addItem} setShowForm={setShowForm} editValues={{}} />}
+      {showForm && <KeyValueForm save={addItem} setShowForm={setShowForm} editValues={{}} title="Add relation" />}
     </Box>
   );
 };

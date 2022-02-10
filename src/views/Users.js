@@ -5,6 +5,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Button } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import { Typography } from "@mui/material";
 import UserRoleForm from "components/forms/userManagement/UserRoleForm";
 
@@ -61,7 +62,7 @@ const Users = () => {
       headerName: "User UID",
       width: 330,
       sortable: false,
-      renderCell: (params) => <p style={{ whiteSpace: "nowrap" }}>{params.value}</p>,
+      renderCell: (params) => <p style={{ whiteSpace: "normal" }}>{params.value}</p>,
     },
     {
       field: "action",
@@ -82,7 +83,7 @@ const Users = () => {
       <Typography variant="h5" sx={{ my: 2 }}>
         Users management
       </Typography>
-      <div style={{ height: 740, width: 1000, marginTop: "40px" }}>
+      <Paper sx={{ height: 740, width: 1000, marginTop: "40px" }}>
         <DataGrid
           rowHeight={60}
           rows={users}
@@ -97,7 +98,7 @@ const Users = () => {
             },
           }}
         />
-      </div>
+      </Paper>
       {showForm && <UserRoleForm setShowForm={setShowForm} save={editUserRole} editValues={editValues} />}
     </Box>
   );

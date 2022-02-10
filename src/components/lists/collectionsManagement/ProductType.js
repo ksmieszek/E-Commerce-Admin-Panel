@@ -38,7 +38,7 @@ const ProductType = ({ category }) => {
   return (
     <>
       <StyledList title={category.key} fields={fields} addAction={addAction} removeField={removeField} />
-      {showForm && <TitleForm save={addField} setShowForm={setShowForm} />}
+      {showForm && <TitleForm save={addField} setShowForm={setShowForm} title="Add type" />}
     </>
   );
 };

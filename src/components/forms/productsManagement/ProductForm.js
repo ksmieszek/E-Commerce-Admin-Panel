@@ -14,6 +14,7 @@ import ControlledSelect from "components/mui/ControlledSelect";
 import ControlledInput from "components/mui/ControlledInput";
 import StyledTooltip from "components/mui/StyledTooltip";
 import PhotosForm from "components/forms/photosManagement/PhotosForm";
+import DialogHeader from "templates/dialogForm/DialogHeader";
 
 let schema = yup.object().shape({
   frontImage: yup.string().url("Front image has to be URL address").trim().required("Front image name is a required field"),
@@ -124,7 +125,8 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <Box sx={{ paddingY: "10px" }}>
+        <DialogHeader title="Product form" onClose={() => setShowForm(false)} />
+        <Box sx={{ pb: "10px" }}>
           <DialogContent sx={{ maxWidth: "1000px", paddingX: "25px", paddingTop: "30px" }}>
             <Box component="div" sx={{ mb: 6 }}>
               <Button variant="contained" onClick={() => setShowPhotosForm(true)}>
@@ -150,9 +152,6 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
               </Box>
             </Box>
             <Box component="form" onSubmit={handleSubmit(onSubmit)}>
-              <Typography variant="h6" sx={{ mb: 2 }}>
-                Product form
-              </Typography>
               <Box sx={{ display: "grid", gap: 5, gridTemplateColumns: "repeat(2, 1fr)" }}>
                 <ControlledInput control={control} formName="name" label="Product name" />
                 <ControlledInput control={control} formName="price" label="Price" type="number" />
@@ -224,7 +223,7 @@ const ProductForm = ({ setShowForm, editValues, save }) => {
               </Box>
             </Box>
           </DialogContent>
-          <DialogActions sx={{ px: 3, py: 3 }}>
+          <DialogActions sx={{ p: 3 }}>
             <Button onClick={() => setShowForm(false)}>Cancel</Button>
             <Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
               Save

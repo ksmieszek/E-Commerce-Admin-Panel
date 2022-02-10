@@ -114,9 +114,9 @@ const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation }) 
       />
       {showForm ? (
         Object.keys(editValues).length !== 0 ? (
-          <TitleForm save={action} setShowForm={setShowForm} editValues={editValues} />
+          <TitleForm save={action} setShowForm={setShowForm} editValues={editValues} title="Edit title" />
         ) : (
-          <KeyValueForm save={action} setShowForm={setShowForm} editValues={editValues} />
+          <KeyValueForm save={action} setShowForm={setShowForm} editValues={editValues} title="Add relation field" />
         )
       ) : null}
     </>

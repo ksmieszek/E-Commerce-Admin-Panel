@@ -4,6 +4,7 @@ import { Button } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import { Typography } from "@mui/material";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useDialog } from "hooks/useDialog";
@@ -137,7 +138,7 @@ const Photos = () => {
       >
         Add photo
       </Button>
-      <div style={{ height: 1130, width: 1350, marginTop: "40px" }}>
+      <Paper sx={{ height: 1130, width: 1350, marginTop: "40px" }}>
         <DataGrid
           rowHeight={200}
           rows={fields}
@@ -152,7 +153,7 @@ const Photos = () => {
             },
           }}
         />
-      </div>
+      </Paper>
       {showForm && <PhotosForm setShowForm={setShowForm} save={addItem} />}
     </Box>
   );

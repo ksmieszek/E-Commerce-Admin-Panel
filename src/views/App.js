@@ -8,8 +8,8 @@ import Photos from "./Photos";
 import Users from "./Users";
 import Dashboard from "./Dashboard";
 import Orders from "./Orders";
-import DashboardTemplate from "templates/mui/dashboard/Dashboard";
-import MainTemplate from "templates/mainTemplate/MainTemplate";
+import DashboardTemplate from "templates/muiStarter/dashboard/Dashboard";
+import MainTemplate from "templates/main/MainTemplate";
 import { useAuth } from "hooks/useAuth";
 
 function App() {

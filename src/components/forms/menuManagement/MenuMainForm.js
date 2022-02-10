@@ -11,6 +11,7 @@ import DialogContent from "@mui/material/DialogContent";
 import Box from "@mui/material/Box";
 import ControlledInput from "components/mui/ControlledInput";
 import ControlledSelect from "components/mui/ControlledSelect";
+import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
 
 let schema = yup.object().shape({
   order: yup
@@ -50,28 +51,13 @@ const MenuMainForm = ({ save, setShowForm, editValues = {} }) => {
   }, []);
 
   return (
-    <Dialog
-      open={true}
-      fullWidth={true}
-      maxWidth="lg"
-      onClose={() => setShowForm(false)}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <Box component="form" noValidate autoComplete="off" sx={{ pt: 3 }}>
-        <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
-          <ControlledInput control={control} formName="order" label="Order" type="number" />
-          <ControlledInput control={control} formName="title" label="Title" />
-          {Object?.keys(editValues)?.length === 0 && <ControlledSelect control={control} formName="collection" itemsArray={collectionArray} />}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 3 }}>
-          <Button onClick={() => setShowForm(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => handleSubmit(onSubmit)()}>
-            Save
-          </Button>
-        </DialogActions>
-      </Box>
-    </Dialog>
+    <DialogFormTemplate maxWidth="lg" title={"Manage main category"} onClose={() => setShowForm(false)} submit={handleSubmit(onSubmit)}>
+      <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
+        <ControlledInput control={control} formName="order" label="Order" type="number" />
+        <ControlledInput control={control} formName="title" label="Title" />
+        {Object?.keys(editValues)?.length === 0 && <ControlledSelect control={control} formName="collection" itemsArray={collectionArray} />}
+      </DialogContent>
+    </DialogFormTemplate>
   );
 };
 

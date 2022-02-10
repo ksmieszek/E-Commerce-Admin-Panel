@@ -6,6 +6,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import LoadingButton from "@mui/lab/LoadingButton";
+import DialogHeader from "templates/dialogForm/DialogHeader";
 
 const storage = getStorage();
 
@@ -64,7 +65,8 @@ const PhotosForm = ({ setShowForm, save }) => {
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <Box sx={{ paddingY: "10px", minWidth: "600px" }}>
+      <DialogHeader title="Photos form" onClose={() => setShowForm(false)} />
+      <Box sx={{ pb: "10px", minWidth: "600px" }}>
         <DialogContent sx={{ maxWidth: "1000px", paddingX: "30px", paddingTop: "30px" }}>
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
             <Button variant="contained" component="label">
@@ -80,7 +82,7 @@ const PhotosForm = ({ setShowForm, save }) => {
             ))}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ px: 3, py: 3 }}>
+        <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setShowForm(false)}>Cancel</Button>
           <LoadingButton loading={loading} variant="contained" onClick={() => handleSubmit(onSubmit)()}>
             Upload

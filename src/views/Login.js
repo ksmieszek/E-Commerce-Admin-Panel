@@ -1,4 +1,4 @@
-import SignIn from "templates/mui/signIn/SignIn";
+import SignIn from "templates/muiStarter/signIn/SignIn";
 import Box from "@mui/material/Box";
 
 const Login = () => {

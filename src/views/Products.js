@@ -9,6 +9,7 @@ import Stack from "@mui/material/Stack";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import { Typography } from "@mui/material";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useDialog } from "hooks/useDialog";
@@ -153,8 +154,7 @@ const Products = () => {
       <Button variant="contained" sx={{ my: 2 }} startIcon={<AddIcon />} onClick={(e) => addAction(e)}>
         Add product
       </Button>
-
-      <div style={{ height: 1130, width: 1500, marginTop: "40px" }}>
+      <Paper sx={{ height: 1130, width: 1500, marginTop: "40px" }}>
         <DataGrid
           rowHeight={200}
           rows={productsFields}
@@ -169,7 +169,7 @@ const Products = () => {
             },
           }}
         />
-      </div>
+      </Paper>
       {showForm && <ProductForm setShowForm={setShowForm} save={action} editValues={editValues} />}
     </Box>
   );
