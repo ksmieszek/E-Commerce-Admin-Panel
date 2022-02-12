@@ -6,11 +6,11 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import LoadingButton from "@mui/lab/LoadingButton";
-import DialogHeader from "templates/dialogForm/DialogHeader";
+import DialogHeader from "templates/dialog/DialogHeader";
 
 const storage = getStorage();
 
-const PhotosForm = ({ setShowForm, save }) => {
+const PhotosForm = ({ setShowPhotosForm, action }) => {
   const { handleSubmit, watch, register } = useForm();
 
   const onSubmit = async ({ images }) => {
@@ -20,8 +20,8 @@ const PhotosForm = ({ setShowForm, save }) => {
       const image = await uploadImage(images[i]);
       files.push(image);
     }
-    save(files);
-    setShowForm(false);
+    action(files);
+    setShowPhotosForm(false);
   };
 
   const watchImages = watch("images");
@@ -61,11 +61,11 @@ const PhotosForm = ({ setShowForm, save }) => {
       open={true}
       fullWidth={false}
       maxWidth="lg"
-      onClose={() => setShowForm(false)}
+      onClose={() => setShowPhotosForm(false)}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogHeader title="Photos form" onClose={() => setShowForm(false)} />
+      <DialogHeader title="Photos form" onClose={() => setShowPhotosForm(false)} />
       <Box sx={{ pb: "10px", minWidth: "600px" }}>
         <DialogContent sx={{ maxWidth: "1000px", paddingX: "30px", paddingTop: "30px" }}>
           <Box component="form" onSubmit={handleSubmit(onSubmit)}>
@@ -83,7 +83,7 @@ const PhotosForm = ({ setShowForm, save }) => {
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={() => setShowForm(false)}>Cancel</Button>
+          <Button onClick={() => setShowPhotosForm(false)}>Cancel</Button>
           <LoadingButton loading={loading} variant="contained" onClick={() => handleSubmit(onSubmit)()}>
             Upload
           </LoadingButton>

@@ -3,13 +3,13 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DialogContent from "@mui/material/DialogContent";
 import TextField from "@mui/material/TextField";
-import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
+import DialogFormTemplate from "templates/dialog/DialogFormTemplate";
 
 let schema = yup.object().shape({
   title: yup.string().trim().required("Title is a required field"),
 });
 
-const TitleForm = ({ save, setShowForm, editValues, title }) => {
+const TitleForm = ({ action, editValues }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
       title: editValues?.title || "",
@@ -18,12 +18,11 @@ const TitleForm = ({ save, setShowForm, editValues, title }) => {
   });
 
   const onSubmit = (data) => {
-    save(data.title);
-    setShowForm(false);
+    action(data.title);
   };
 
   return (
-    <DialogFormTemplate maxWidth="sm" title={title} onClose={() => setShowForm(false)} submit={handleSubmit(onSubmit)}>
+    <DialogFormTemplate submit={handleSubmit(onSubmit)}>
       <DialogContent sx={{ display: "flex", justifyContent: "left" }}>
         <Controller
           name="title"

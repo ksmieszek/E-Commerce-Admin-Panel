@@ -24,12 +24,15 @@ const OrdersTable = ({ limit, paginate = true }) => {
           deliveryInfo: { email, city, postalCode },
           date,
         } = doc.data();
-        const convertToDate = date.toDate().toISOString().split("T")[0];
-        ordersArray.push({ id: doc.id, date: convertToDate, cartValue, email, city, postalCode });
+        ordersArray.push({ id: doc.id, date: date.toDate(), cartValue, email, city, postalCode });
       });
       ordersArray.sort((a, b) => (a.date > b.date ? -1 : 1));
-      if (!paginate) ordersArray.splice(limit);
-      setOrders(ordersArray);
+      const OrdersArrayFormatted = ordersArray.map((item) => {
+        item.date = item.date.toISOString().split("T")[0];
+        return item;
+      });
+      if (!paginate) OrdersArrayFormatted.splice(limit);
+      setOrders(OrdersArrayFormatted);
     })();
   }, []);
 

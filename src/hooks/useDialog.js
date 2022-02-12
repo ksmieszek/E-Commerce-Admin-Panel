@@ -4,10 +4,31 @@ export const DialogContext = createContext();
 export const useDialog = () => useContext(DialogContext);
 
 const DialogProvider = ({ children }) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [dialogAction, setDialogAction] = useState(() => {});
+  const [dialogIsOpen, setDialogIsOpen] = useState(false);
+  const [dialogContent, setDialogContent] = useState(null);
+  const [dialogTitle, setDialogTitle] = useState(null);
+  const [dialogSize, setDialogSize] = useState(null);
 
-  return <DialogContext.Provider value={{ openDialog, setOpenDialog, dialogAction, setDialogAction }}>{children}</DialogContext.Provider>;
+  const closeDialog = () => setDialogIsOpen(false);
+  const openDialog = () => setDialogIsOpen(true);
+
+  return (
+    <DialogContext.Provider
+      value={{
+        dialogIsOpen,
+        closeDialog,
+        openDialog,
+        dialogContent,
+        setDialogContent,
+        dialogTitle,
+        setDialogTitle,
+        dialogSize,
+        setDialogSize,
+      }}
+    >
+      {children}
+    </DialogContext.Provider>
+  );
 };
 
 export default DialogProvider;

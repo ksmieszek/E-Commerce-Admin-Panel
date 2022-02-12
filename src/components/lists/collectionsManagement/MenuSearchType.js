@@ -5,61 +5,89 @@ import KeyValueForm from "components/forms/KeyValueForm";
 import TitleForm from "components/forms/TitleForm";
 import StyledList from "./StyledList";
 import { useDialog } from "hooks/useDialog";
+import DeleteForm from "components/mui/DeleteForm";
 
-const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation }) => {
+const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation, editRelation }) => {
   const [fields, setFields] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editValues, setEditValues] = useState(undefined);
-  const { setOpenDialog, setDialogAction } = useDialog();
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
   useEffect(() => {
-    (async () => {
-      const list = [];
-      for (const [key, value] of Object.entries(relation.podcategories)) list.push({ key, value });
-      setFields(list);
-    })();
+    const list = [];
+    for (const [key, value] of Object.entries(relation.podcategories)) list.push({ key, value });
+    setFields(list);
   }, []);
 
-  const action = (values) => {
-    if (Object.keys(editValues).length !== 0) editTitle(values);
-    else addField(values);
-  };
-
-  const editTitle = async (title) => {
-    const docRef = doc(db, "relations", "categoryPodcategory");
-    setDoc(
-      docRef,
-      {
-        [relationKey]: {
-          name: title,
-        },
-      },
-      { merge: true }
-    );
-    relation.name = title;
-  };
-
-  const addField = async (values) => {
-    const { key, value } = values;
-    //check if podcategory already exists
-    if (relation.podcategories?.[key] !== undefined) return;
-    const docRef = doc(db, "relations", "categoryPodcategory");
-    setDoc(
-      docRef,
-      {
-        [relationKey]: {
-          podcategories: {
-            [key]: value,
+  const editRelationAction = (e) => {
+    e.stopPropagation();
+    const action = (title) => {
+      const docRef = doc(db, "relations", "categoryPodcategory");
+      setDoc(
+        docRef,
+        {
+          [relationKey]: {
+            name: title,
           },
         },
-      },
-      { merge: true }
+        { merge: true }
+      );
+      editRelation(indexInList, title);
+    };
+    setDialogContent(
+      <TitleForm
+        action={action}
+        editValues={{
+          title: relation.name,
+        }}
+      />
     );
-    setFields([...fields, { key, value }]);
+    setDialogSize("sm");
+    setDialogTitle("Edit title");
+    openDialog();
   };
-  const removeField = (e, fieldIndex) => {
+
+  const deleteRelationAction = (e) => {
     e.stopPropagation();
-    setDialogAction(() => () => {
+    const action = async () => {
+      const docRef = doc(db, "relations", "categoryPodcategory");
+      await updateDoc(docRef, {
+        [relationKey]: deleteField(),
+      });
+      deleteRelation(indexInList);
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item?");
+    openDialog();
+  };
+
+  const addField = (e) => {
+    e.stopPropagation();
+    const action = (values) => {
+      const { key, value } = values;
+      //check if podcategory already exists
+      if (relation.podcategories?.[key] !== undefined) return;
+      const docRef = doc(db, "relations", "categoryPodcategory");
+      setDoc(
+        docRef,
+        {
+          [relationKey]: {
+            podcategories: {
+              [key]: value,
+            },
+          },
+        },
+        { merge: true }
+      );
+      setFields([...fields, { key, value }]);
+    };
+    setDialogContent(<KeyValueForm action={action} editValues={{}} />);
+    setDialogSize("sm");
+    setDialogTitle("Add relation field");
+    openDialog();
+  };
+
+  const removeField = (fieldIndex) => {
+    const action = () => {
       const fieldsArray = [...fields];
       fieldsArray.splice(fieldIndex, 1);
       const podcategories = [...fieldsArray].reduce(
@@ -74,52 +102,22 @@ const MenuSearchType = ({ relation, relationKey, indexInList, deleteRelation }) 
         },
       });
       setFields(fieldsArray);
-    });
-    setOpenDialog(true);
-  };
-
-  const addAction = (e) => {
-    e.stopPropagation();
-    setEditValues({});
-    setShowForm(true);
-  };
-  const editAction = (e) => {
-    e.stopPropagation();
-    setEditValues({
-      title: relation.name,
-    });
-    setShowForm(true);
-  };
-  const deleteAction = (e) => {
-    e.stopPropagation();
-    setDialogAction(() => async () => {
-      const docRef = doc(db, "relations", "categoryPodcategory");
-      await updateDoc(docRef, {
-        [relationKey]: deleteField(),
-      });
-      deleteRelation(indexInList);
-    });
-    setOpenDialog(true);
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item?");
+    openDialog();
   };
 
   return (
-    <>
-      <StyledList
-        title={`${relationKey}: ${relation.name}`}
-        fields={fields}
-        addAction={addAction}
-        editAction={editAction}
-        deleteAction={deleteAction}
-        removeField={removeField}
-      />
-      {showForm ? (
-        Object.keys(editValues).length !== 0 ? (
-          <TitleForm save={action} setShowForm={setShowForm} editValues={editValues} title="Edit title" />
-        ) : (
-          <KeyValueForm save={action} setShowForm={setShowForm} editValues={editValues} title="Add relation field" />
-        )
-      ) : null}
-    </>
+    <StyledList
+      title={`${relationKey}: ${relation.name}`}
+      fields={fields}
+      addAction={addField}
+      editAction={editRelationAction}
+      deleteAction={deleteRelationAction}
+      removeField={removeField}
+    />
   );
 };
 

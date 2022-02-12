@@ -2,7 +2,7 @@ import "@fontsource/roboto/300.css";
 import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
-import DeleteDialog from "components/mui/DeleteDialog";
+import StyledDialog from "templates/dialog/StyledDialog";
 import StyledSnackbar from "components/mui/StyledSnackbar";
 
 const MainTemplate = (props) => {
@@ -10,7 +10,7 @@ const MainTemplate = (props) => {
     <>
       {props.children}
       <StyledSnackbar />
-      <DeleteDialog />
+      <StyledDialog />
     </>
   );
 };

@@ -11,6 +11,7 @@ import { useDialog } from "hooks/useDialog";
 import { getStorage, ref, listAll, getDownloadURL, getMetadata, deleteObject } from "firebase/storage";
 import PhotosForm from "components/forms/photosManagement/PhotosForm";
 import StyledTooltip from "components/mui/StyledTooltip";
+import DeleteForm from "components/mui/DeleteForm";
 
 const storage = getStorage();
 const folderRef = ref(storage, "images");
@@ -18,10 +19,9 @@ const folderRef = ref(storage, "images");
 const Photos = () => {
   const { control } = useForm();
   const { fields, replace, remove, prepend } = useFieldArray({ control, name: "photos" });
-
-  const [showForm, setShowForm] = useState(false);
+  const [showPhotosForm, setShowPhotosForm] = useState(false);
   const [pageSize, setPageSize] = useState(5);
-  const { setOpenDialog, setDialogAction } = useDialog();
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
   useEffect(() => {
     (async () => {
@@ -46,21 +46,23 @@ const Photos = () => {
     })();
   }, []);
 
-  const deleteItem = (e, params) => {
-    e.stopPropagation();
-    setDialogAction(() => () => {
+  const addItem = (files) => {
+    files.forEach((item) => prepend(item));
+  };
+
+  const deleteItem = (params) => {
+    const action = () => {
       const photoName = params.getValue(params.id, "name");
       const photoRef = ref(storage, `images/${photoName}`);
       deleteObject(photoRef).then(() => {
         const indexInList = fields.findIndex((item) => item.id === params.id);
         remove(indexInList);
       });
-    });
-    setOpenDialog(true);
-  };
-
-  const addItem = (files) => {
-    files.forEach((item) => prepend(item));
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item?");
+    openDialog();
   };
 
   const columns = [
@@ -116,7 +118,7 @@ const Photos = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Button variant="contained" startIcon={<DeleteIcon />} color="error" size="small" onClick={(e) => deleteItem(e, params)}>
+        <Button variant="contained" startIcon={<DeleteIcon />} color="error" size="small" onClick={(e) => deleteItem(params)}>
           Delete
         </Button>
       ),
@@ -128,14 +130,7 @@ const Photos = () => {
       <Typography variant="h5" sx={{ my: 2 }}>
         Photos management
       </Typography>
-      <Button
-        variant="contained"
-        sx={{ my: 2 }}
-        startIcon={<AddIcon />}
-        onClick={(e) => {
-          setShowForm(true);
-        }}
-      >
+      <Button variant="contained" sx={{ my: 2 }} startIcon={<AddIcon />} onClick={() => setShowPhotosForm(true)}>
         Add photo
       </Button>
       <Paper sx={{ height: 1130, width: 1350, marginTop: "40px" }}>
@@ -154,7 +149,7 @@ const Photos = () => {
           }}
         />
       </Paper>
-      {showForm && <PhotosForm setShowForm={setShowForm} save={addItem} />}
+      {showPhotosForm && <PhotosForm setShowPhotosForm={setShowPhotosForm} action={addItem} />}
     </Box>
   );
 };

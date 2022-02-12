@@ -12,13 +12,11 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
 import { useDialog } from "hooks/useDialog";
+import DeleteForm from "components/mui/DeleteForm";
 
 const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitAllMenus }) => {
   const { handleSubmit, control } = useForm();
   const { fields: categoriesFields, replace: categoriesReplace } = useFieldArray({ control, name: "categories" });
-  const submitMenuMain = () => {
-    handleSubmit(onSubmit)();
-  };
   const onSubmit = () => {
     const updatedArray = [...menusFields].map((item) => {
       if (item.id === menuMain.id) item.categories = categoriesFields;
@@ -27,88 +25,96 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
     menusReplace(updatedArray);
     submitAllMenus();
   };
+  const submitMenuMain = () => {
+    handleSubmit(onSubmit)();
+  };
 
   useEffect(() => {
     const categoriesArray = [];
-    menuMain.categories?.forEach(async (item) => {
+    menuMain.categories?.forEach((item) => {
       categoriesArray.push({ title: item.title, link: item.link, order: item.order, podcategories: item.podcategories || [], key: item.key });
     });
     categoriesReplace(categoriesArray);
   }, []);
 
-  const [showForm, setShowForm] = useState(false);
-  const [isCategory, setIsCategory] = useState(false);
-  const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
   const [subListCollapsed, setSubListCollapsed] = useState(false);
-  const { setOpenDialog, setDialogAction } = useDialog();
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
-  const editItem = (values) => {
-    const updatedArray = [...menusFields].map((item) => {
-      if (item.id === menuMain.id) {
-        item.order = values.order;
-        item.title = values.title;
-      }
-      return item;
-    });
-    setShowForm(false);
-    menusReplace(updatedArray);
-    submitAllMenus();
+  const editMenuMain = (e) => {
+    e.stopPropagation();
+    const action = (values) => {
+      const updatedArray = [...menusFields].map((item) => {
+        if (item.id === menuMain.id) {
+          item.order = values.order;
+          item.title = values.title;
+        }
+        return item;
+      });
+      menusReplace(updatedArray);
+      submitAllMenus();
+    };
+    setDialogContent(
+      <MenuMainForm
+        action={action}
+        editValues={{
+          id: menuMain.id,
+          order: menuMain.order,
+          title: menuMain.title,
+          link: menuMain.link,
+          key: menuMain.key,
+        }}
+        menuMainKey={menuMain.key}
+      />
+    );
+    setDialogSize("md");
+    setDialogTitle("Manage main category");
+    openDialog();
   };
-  const deleteItem = () => {
-    setDialogAction(() => () => {
+
+  const deleteMenuMainAction = (e) => {
+    e.stopPropagation();
+    const action = () => {
       deleteMenuMain(menuMain.id);
-    });
-    setOpenDialog(true);
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item?");
+    openDialog();
   };
 
-  const addMenuCategory = (values) => {
-    const menusArrayCopy = [...menusFields];
-    const menuMainIndex = menusFields.findIndex((item) => item.id === menuMain.id);
-    const { order, title, link, key } = values;
-    const newCategoriesArray = [
-      ...categoriesFields,
-      {
-        order,
-        title,
-        link,
-        key,
-        podcategories: [],
-      },
-    ];
-    menusArrayCopy[menuMainIndex].categories = newCategoriesArray;
-    menusReplace(menusArrayCopy);
-    submitAllMenus();
+  const addMenuCategory = (e) => {
+    e.stopPropagation();
+    const action = (values) => {
+      const menusArrayCopy = [...menusFields];
+      const menuMainIndex = menusFields.findIndex((item) => item.id === menuMain.id);
+      const { order, title, link, key } = values;
+      const newCategoriesArray = [
+        ...categoriesFields,
+        {
+          order,
+          title,
+          link,
+          key,
+          podcategories: [],
+        },
+      ];
+      menusArrayCopy[menuMainIndex].categories = newCategoriesArray;
+      menusReplace(menusArrayCopy);
+      submitAllMenus();
+    };
+    setDialogContent(<MenuCategoryForm action={action} editValues={{}} menuMainKey={menuMain.key} isCategory={true} />);
+    setDialogSize("lg");
+    setDialogTitle("Manage category");
+    openDialog();
   };
+
   const deleteMenuCategory = (newCategoriesArray) => {
     const menusArrayCopy = [...menusFields];
     const menuMainIndex = menusFields.findIndex((item) => item.id === menuMain.id);
     menusArrayCopy[menuMainIndex].categories = newCategoriesArray;
     menusReplace(menusArrayCopy);
     submitAllMenus();
-  };
-
-  const addAction = (e) => {
-    e.stopPropagation();
-    setEditItemValues({});
-    setIsCategory(true);
-    setShowForm(true);
-  };
-  const editAction = (e) => {
-    e.stopPropagation();
-    setEditItemValues({
-      id: menuMain.id,
-      order: menuMain.order,
-      title: menuMain.title,
-      link: menuMain.link,
-      key: menuMain.key,
-    });
-    setIsCategory(false);
-    setShowForm(true);
-  };
-  const deleteAction = (e) => {
-    e.stopPropagation();
-    deleteItem();
   };
 
   return (
@@ -132,8 +138,8 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
       >
         <StyledListItemButton header={true} onClick={() => setListCollapsed(!listCollapsed)}>
           <ListItemText primary={menuMain.title} />
-          <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteAction(e)} />
-          <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editAction(e)} />
+          <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteMenuMainAction(e)} />
+          <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editMenuMain(e)} />
           <StyledExpand listCollapsed={listCollapsed} />
         </StyledListItemButton>
         <Collapse in={listCollapsed} timeout="auto" unmountOnExit sx={{ mb: 1 }}>
@@ -148,7 +154,7 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
           </List>
           <StyledListItemButton indent={true} onClick={() => setSubListCollapsed(!subListCollapsed)}>
             <ListItemText primary={`categories`} />
-            <AddIcon sx={{ ml: 1 }} fontSize="medium" onClick={(e) => addAction(e)} />
+            <AddIcon sx={{ ml: 1 }} fontSize="medium" onClick={(e) => addMenuCategory(e)} />
             {categoriesFields.length > 0 && <StyledExpand listCollapsed={subListCollapsed} />}
           </StyledListItemButton>
           <List component="div" disablePadding sx={{ pl: 4 }}>
@@ -168,19 +174,6 @@ const MenuMain = ({ menuMain, deleteMenuMain, menusReplace, menusFields, submitA
           </List>
         </Collapse>
       </List>
-      {showForm ? (
-        isCategory ? (
-          <MenuCategoryForm
-            save={addMenuCategory}
-            setShowForm={setShowForm}
-            editValues={editItemValues}
-            menuMainKey={menuMain.key}
-            isCategory={true}
-          />
-        ) : (
-          <MenuMainForm save={editItem} setShowForm={setShowForm} editValues={editItemValues} />
-        )
-      ) : null}
     </>
   );
 };

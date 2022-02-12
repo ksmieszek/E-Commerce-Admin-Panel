@@ -9,13 +9,13 @@ import ListItemText from "@mui/material/ListItemText";
 import Select from "@mui/material/Select";
 import Checkbox from "@mui/material/Checkbox";
 import FormHelperText from "@mui/material/FormHelperText";
-import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
+import DialogFormTemplate from "templates/dialog/DialogFormTemplate";
 
 let schema = yup.object().shape({
   isAdmin: yup.string().trim().required("Role must be defined"),
 });
 
-const UserRoleForm = ({ save, setShowForm, editValues }) => {
+const UserRoleForm = ({ action, editValues }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
       id: editValues?.id || undefined,
@@ -26,12 +26,11 @@ const UserRoleForm = ({ save, setShowForm, editValues }) => {
 
   const onSubmit = (data) => {
     const { isAdmin, id } = data;
-    save({ id, admin: isAdmin });
-    setShowForm(false);
+    action({ id, admin: isAdmin });
   };
 
   return (
-    <DialogFormTemplate maxWidth="sm" title="Change user role" onClose={() => setShowForm(false)} submit={handleSubmit(onSubmit)}>
+    <DialogFormTemplate submit={handleSubmit(onSubmit)}>
       <DialogContent sx={{ display: "flex", justifyContent: "left" }}>
         <FormControl sx={{ width: 300 }}>
           <Controller

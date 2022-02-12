@@ -3,17 +3,12 @@ import Alert from "@mui/material/Alert";
 import { useSnackbar } from "hooks/useSnackbar";
 
 const StyledSnackbar = () => {
-  const { snackBarState, handleClose } = useSnackbar();
+  const { snackbarState, closeSnackbar } = useSnackbar();
 
   return (
-    <Snackbar
-      open={snackBarState.open}
-      autoHideDuration={6000}
-      onClose={() => handleClose()}
-      anchorOrigin={{ vertical: "top", horizontal: "center" }}
-    >
-      <Alert severity={snackBarState.severity} variant="filled">
-        {snackBarState.message}
+    <Snackbar open={snackbarState.open} autoHideDuration={6000} onClose={closeSnackbar} anchorOrigin={{ vertical: "top", horizontal: "center" }}>
+      <Alert severity={snackbarState.severity} variant="filled">
+        {snackbarState.message}
       </Alert>
     </Snackbar>
   );

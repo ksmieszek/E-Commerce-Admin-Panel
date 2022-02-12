@@ -4,14 +4,10 @@ import { db } from "firebase";
 import { doc, getDoc } from "firebase/firestore";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import Box from "@mui/material/Box";
 import ControlledInput from "components/mui/ControlledInput";
 import ControlledSelect from "components/mui/ControlledSelect";
-import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
+import DialogFormTemplate from "templates/dialog/DialogFormTemplate";
 
 let schema = yup.object().shape({
   order: yup
@@ -24,11 +20,11 @@ let schema = yup.object().shape({
   collection: yup.string().trim().required("Collection is a required field"),
 });
 
-const MenuMainForm = ({ save, setShowForm, editValues = {} }) => {
+const MenuMainForm = ({ action, editValues = {} }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
       id: editValues?.id || null,
-      order: editValues?.order || 0,
+      order: editValues?.order || "",
       title: editValues?.title || "",
       collection: editValues?.link || "",
     },
@@ -39,7 +35,7 @@ const MenuMainForm = ({ save, setShowForm, editValues = {} }) => {
     const { id, order, title, collection } = data;
     const key = collection;
     const path = `/products/${collection}`;
-    save({ id, order, title, link: path, key });
+    action({ id, order, title, link: path, key });
   };
 
   const [collectionArray, setCollectionArray] = useState([]);
@@ -51,7 +47,7 @@ const MenuMainForm = ({ save, setShowForm, editValues = {} }) => {
   }, []);
 
   return (
-    <DialogFormTemplate maxWidth="lg" title={"Manage main category"} onClose={() => setShowForm(false)} submit={handleSubmit(onSubmit)}>
+    <DialogFormTemplate submit={handleSubmit(onSubmit)}>
       <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
         <ControlledInput control={control} formName="order" label="Order" type="number" />
         <ControlledInput control={control} formName="title" label="Title" />

@@ -11,6 +11,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
 import { useDialog } from "hooks/useDialog";
+import DeleteForm from "components/mui/DeleteForm";
 
 const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMenuCategory, submitChanges, menuMainKey }) => {
   const { control } = useForm();
@@ -24,63 +25,83 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
     podcategoriesReplace(podcategoriesArray);
   }, []);
 
-  const [showForm, setShowForm] = useState(false);
-  const [isCategory, setIsCategory] = useState(false);
-  const [editItemValues, setEditItemValues] = useState({});
   const [listCollapsed, setListCollapsed] = useState(false);
   const [subListCollapsed, setSubListCollapsed] = useState(false);
-  const { setOpenDialog, setDialogAction } = useDialog();
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
-  const action = (values) => {
-    if (values.id) editItem(values);
-    else addPodcategory(values);
-  };
-
-  const editItem = (values) => {
-    const updatedArray = [...categoriesFields].map((item) => {
-      if (item.id === category.id) {
-        item.order = values.order;
-        item.title = values.title;
-      }
-      return item;
-    });
-    categoriesReplace(updatedArray);
-    submitChanges();
-  };
-  const deleteItem = (e) => {
+  const editMenuCategory = (e) => {
     e.stopPropagation();
-    setDialogAction(() => () => {
+    const action = (values) => {
+      const updatedArray = [...categoriesFields].map((item) => {
+        if (item.id === category.id) {
+          item.order = values.order;
+          item.title = values.title;
+        }
+        return item;
+      });
+      categoriesReplace(updatedArray);
+      submitChanges();
+    };
+    setDialogContent(
+      <MenuCategoryForm
+        action={action}
+        editValues={{
+          id: category.id,
+          order: category.order,
+          title: category.title,
+          link: category.link,
+          key: category.key,
+        }}
+        menuMainKey={menuMainKey}
+        menuCategoryKey={category.key}
+        isCategory={true}
+      />
+    );
+    setDialogSize("md");
+    setDialogTitle("Manage category");
+    openDialog();
+  };
+
+  const deleteMenuCategoryAction = (e) => {
+    e.stopPropagation();
+    const action = () => {
       const updatedArray = [...categoriesFields].filter((item) => item.id !== category.id && item);
       deleteMenuCategory(updatedArray);
-    });
-    setOpenDialog(true);
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item???");
+    openDialog();
   };
 
-  const addPodcategory = (values) => {
-    const categoriesArrayCopy = [...categoriesFields];
-    const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
-    const { order, title, link, key } = values;
-    const newPodcategoriesArray = [
-      ...podcategoriesFields,
-      {
-        order,
-        title,
-        link,
-        key,
-      },
-    ];
-    categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
-    categoriesReplace(categoriesArrayCopy);
-    submitChanges();
+  const addMenuPodcategory = (e) => {
+    e.stopPropagation();
+    const action = (values) => {
+      const categoriesArrayCopy = [...categoriesFields];
+      const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
+      const { order, title, link, key } = values;
+      const newPodcategoriesArray = [
+        ...podcategoriesFields,
+        {
+          order,
+          title,
+          link,
+          key,
+        },
+      ];
+      categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
+      categoriesReplace(categoriesArrayCopy);
+      submitChanges();
+    };
+    setDialogContent(
+      <MenuCategoryForm action={action} editValues={{}} menuMainKey={menuMainKey} menuCategoryKey={category.key} isCategory={false} />
+    );
+    setDialogSize("lg");
+    setDialogTitle("Manage podcategory");
+    openDialog();
   };
-  const editPodcategory = (newPodcategoriesArray) => {
-    const categoriesArrayCopy = [...categoriesFields];
-    const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
-    categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
-    categoriesReplace(categoriesArrayCopy);
-    submitChanges();
-  };
-  const deletePodcategory = (newPodcategoriesArray) => {
+
+  const editMenuPodcategory = (newPodcategoriesArray) => {
     const categoriesArrayCopy = [...categoriesFields];
     const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
     categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
@@ -88,31 +109,20 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
     submitChanges();
   };
 
-  const addAction = (e) => {
-    e.stopPropagation();
-    setEditItemValues({});
-    setIsCategory(false);
-    setShowForm(true);
-  };
-  const editAction = (e) => {
-    e.stopPropagation();
-    setEditItemValues({
-      id: category.id,
-      order: category.order,
-      title: category.title,
-      link: category.link,
-      key: category.key,
-    });
-    setIsCategory(true);
-    setShowForm(true);
+  const deleteMenuPodcategory = (newPodcategoriesArray) => {
+    const categoriesArrayCopy = [...categoriesFields];
+    const categoryIndex = categoriesFields.findIndex((item) => item.id === category.id);
+    categoriesArrayCopy[categoryIndex].podcategories = newPodcategoriesArray;
+    categoriesReplace(categoriesArrayCopy);
+    submitChanges();
   };
 
   return (
     <>
       <StyledListItemButton onClick={() => setListCollapsed(!listCollapsed)}>
         <ListItemText primary={category.title} />
-        <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteItem(e)} />
-        <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editAction(e)} />
+        <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => deleteMenuCategoryAction(e)} />
+        <EditIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => editMenuCategory(e)} />
         <StyledExpand listCollapsed={listCollapsed} />
       </StyledListItemButton>
       <Collapse in={listCollapsed} timeout="auto" unmountOnExit>
@@ -127,7 +137,7 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
         </List>
         <StyledListItemButton indent={true} onClick={() => setSubListCollapsed(!subListCollapsed)}>
           <ListItemText primary={`podcategories`} />
-          <AddIcon fontSize="medium" sx={{ ml: 1 }} onClick={(e) => addAction(e)} />
+          <AddIcon fontSize="medium" sx={{ ml: 1 }} onClick={(e) => addMenuPodcategory(e)} />
           {podcategoriesFields.length > 0 && <StyledExpand listCollapsed={subListCollapsed} />}
         </StyledListItemButton>
         <List component="div" disablePadding sx={{ pl: 4 }}>
@@ -138,8 +148,8 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
                   key={item.id}
                   podcategory={podcategoriesFields[index]}
                   podcategoriesFields={podcategoriesFields}
-                  deletePodcategory={deletePodcategory}
-                  editPodcategory={editPodcategory}
+                  editMenuPodcategory={editMenuPodcategory}
+                  deleteMenuPodcategory={deleteMenuPodcategory}
                   menuCategoryKey={category.key}
                   menuMainKey={menuMainKey}
                 />
@@ -147,16 +157,6 @@ const MenuCategory = ({ category, categoriesFields, categoriesReplace, deleteMen
           </Collapse>
         </List>
       </Collapse>
-      {showForm && (
-        <MenuCategoryForm
-          save={action}
-          setShowForm={setShowForm}
-          editValues={editItemValues}
-          menuMainKey={menuMainKey}
-          menuCategoryKey={category.key}
-          isCategory={isCategory}
-        />
-      )}
     </>
   );
 };

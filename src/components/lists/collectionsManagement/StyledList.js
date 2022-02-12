@@ -42,7 +42,7 @@ const StyledList = ({ title, fields, addAction, editAction, deleteAction, remove
             {fields.map((item, index) => (
               <StyledListItemButton key={typeof item === "object" ? item.key : item}>
                 <ListItemText primary={typeof item === "object" ? `${item.key}: ${item.value}` : item} />
-                <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={(e) => removeField(e, index)} />
+                <DeleteIcon fontSize="small" sx={{ ml: 1 }} onClick={() => removeField(index)} />
               </StyledListItemButton>
             ))}
           </Collapse>

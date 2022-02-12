@@ -1,17 +1,13 @@
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
-import Box from "@mui/material/Box";
 import { useEffect, useState } from "react";
 import { db } from "firebase";
 import { doc, getDoc } from "firebase/firestore";
 import ControlledSelect from "components/mui/ControlledSelect";
 import ControlledInput from "components/mui/ControlledInput";
-import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
+import DialogFormTemplate from "templates/dialog/DialogFormTemplate";
 
 let schema = yup.object().shape({
   order: yup
@@ -24,11 +20,11 @@ let schema = yup.object().shape({
   category: yup.string().trim().required("Category is a required field"),
 });
 
-const MenuCategoryForm = ({ save, setShowForm, editValues, menuMainKey, menuCategoryKey, isCategory }) => {
+const MenuCategoryForm = ({ action, editValues, menuMainKey, menuCategoryKey, isCategory }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
       id: editValues?.id || null,
-      order: editValues?.order || 0,
+      order: editValues?.order || "",
       title: editValues?.title || "",
       category: editValues?.link || "",
     },
@@ -40,8 +36,7 @@ const MenuCategoryForm = ({ save, setShowForm, editValues, menuMainKey, menuCate
     let link = "";
     if (isCategory) link = `/products/${menuMainKey}/${category}`;
     else link = `/products/${menuMainKey}/${menuCategoryKey}?podcategory=${category}`;
-    save({ id, order, title, link, key });
-    setShowForm(false);
+    action({ id, order, title, link, key });
   };
 
   const [selectList, setSelectList] = useState([]);
@@ -55,12 +50,7 @@ const MenuCategoryForm = ({ save, setShowForm, editValues, menuMainKey, menuCate
   }, []);
 
   return (
-    <DialogFormTemplate
-      maxWidth="lg"
-      title={isCategory ? "Manage category" : "Manage podcategory"}
-      onClose={() => setShowForm(false)}
-      submit={handleSubmit(onSubmit)}
-    >
+    <DialogFormTemplate submit={handleSubmit(onSubmit)}>
       <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
         <ControlledInput control={control} formName="order" label="Order" type="number" />
         <ControlledInput control={control} formName="title" label="Title" />

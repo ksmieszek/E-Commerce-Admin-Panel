@@ -8,51 +8,62 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import StyledExpand from "components/mui/StyledExpand";
 import StyledListItemButton from "components/mui/StyledListItemButton";
 import { useDialog } from "hooks/useDialog";
+import DeleteForm from "components/mui/DeleteForm";
 
-const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, editPodcategory, menuCategoryKey, menuMainKey }) => {
-  const [showForm, setShowForm] = useState(false);
-  const [editItemValues, setEditItemValues] = useState({});
+const MenuPodcategory = ({ podcategory, podcategoriesFields, editMenuPodcategory, deleteMenuPodcategory, menuCategoryKey, menuMainKey }) => {
   const [listCollapsed, setListCollapsed] = useState(false);
-  const { setOpenDialog, setDialogAction } = useDialog();
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
-  const editItem = (values) => {
-    const updatedArray = [...podcategoriesFields].map((item) => {
-      if (item.id === podcategory.id) {
-        item.order = values.order;
-        item.title = values.title;
-      }
-      return item;
-    });
-    setShowForm(false);
-    editPodcategory(updatedArray);
-  };
-  const deleteItem = (e) => {
+  const deleteMenuPodcategoryAction = (e) => {
     e.stopPropagation();
-    setDialogAction(() => () => {
+    const action = () => {
       const updatedArray = [...podcategoriesFields].filter((item) => item.id !== podcategory.id && item);
-      deletePodcategory(updatedArray);
-    });
-    setOpenDialog(true);
+      deleteMenuPodcategory(updatedArray);
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item?");
+    openDialog();
   };
 
-  const editAction = (e) => {
+  const editMenuPodcategoryAction = (e) => {
     e.stopPropagation();
-    setEditItemValues({
-      id: podcategory.id,
-      order: podcategory.order,
-      title: podcategory.title,
-      link: podcategory.link,
-      key: podcategory.key,
-    });
-    setShowForm(true);
+    const editItem = (values) => {
+      const updatedArray = [...podcategoriesFields].map((item) => {
+        if (item.id === podcategory.id) {
+          item.order = values.order;
+          item.title = values.title;
+        }
+        return item;
+      });
+      editMenuPodcategory(updatedArray);
+    };
+    setDialogContent(
+      <MenuCategoryForm
+        action={editItem}
+        editValues={{
+          id: podcategory.id,
+          order: podcategory.order,
+          title: podcategory.title,
+          link: podcategory.link,
+          key: podcategory.key,
+        }}
+        menuCategoryKey={menuCategoryKey}
+        menuMainKey={menuMainKey}
+        isCategory={false}
+      />
+    );
+    setDialogSize("md");
+    setDialogTitle("Manage podcategory");
+    openDialog();
   };
 
   return (
     <>
       <StyledListItemButton onClick={() => setListCollapsed(!listCollapsed)}>
         <ListItemText primary={podcategory.title} />
-        <DeleteIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => deleteItem(e)} />
-        <EditIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => editAction(e)} />
+        <DeleteIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => deleteMenuPodcategoryAction(e)} />
+        <EditIcon sx={{ ml: 1 }} fontSize="small" onClick={(e) => editMenuPodcategoryAction(e)} />
         <StyledExpand listCollapsed={listCollapsed} />
       </StyledListItemButton>
       <Collapse in={listCollapsed} timeout="auto" unmountOnExit sx={{ pl: 4 }}>
@@ -66,16 +77,6 @@ const MenuPodcategory = ({ podcategory, podcategoriesFields, deletePodcategory, 
           <ListItemText primary={`link: ${podcategory.link}`} />
         </List>
       </Collapse>
-      {showForm && (
-        <MenuCategoryForm
-          save={editItem}
-          setShowForm={setShowForm}
-          editValues={editItemValues}
-          menuCategoryKey={menuCategoryKey}
-          menuMainKey={menuMainKey}
-          isCategory={false}
-        />
-      )}
     </>
   );
 };

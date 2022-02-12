@@ -3,8 +3,7 @@ import Tooltip from "@mui/material/Tooltip";
 
 const StyledTooltip = ({ textToCopy, children }) => {
   const [title, setTitle] = useState("Click to copy");
-  const copied = (e) => {
-    e.stopPropagation();
+  const copied = () => {
     navigator.clipboard.writeText(textToCopy);
     setTitle("Copied");
     setTimeout(() => {
@@ -12,7 +11,7 @@ const StyledTooltip = ({ textToCopy, children }) => {
     }, 1500);
   };
   return (
-    <Tooltip placement="top" leaveDelay={500} title={title} onClick={(e) => copied(e)}>
+    <Tooltip placement="top" leaveDelay={500} title={title} onClick={copied}>
       {children}
     </Tooltip>
   );

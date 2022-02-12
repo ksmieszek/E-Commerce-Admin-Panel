@@ -3,14 +3,14 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DialogContent from "@mui/material/DialogContent";
 import TextField from "@mui/material/TextField";
-import DialogFormTemplate from "templates/dialogForm/DialogFormTemplate";
+import DialogFormTemplate from "templates/dialog/DialogFormTemplate";
 
 let schema = yup.object().shape({
   key: yup.string().trim().required("Key is a required field"),
   value: yup.string().trim().required("Name is a required field"),
 });
 
-const KeyValueForm = ({ save, setShowForm, editValues, title }) => {
+const KeyValueForm = ({ action, editValues }) => {
   const { handleSubmit, control } = useForm({
     defaultValues: {
       id: editValues?.id || null,
@@ -21,12 +21,11 @@ const KeyValueForm = ({ save, setShowForm, editValues, title }) => {
   });
 
   const onSubmit = (data) => {
-    save(data);
-    setShowForm(false);
+    action(data);
   };
 
   return (
-    <DialogFormTemplate maxWidth="sm" title={title} onClose={() => setShowForm(false)} submit={handleSubmit(onSubmit)}>
+    <DialogFormTemplate submit={handleSubmit(onSubmit)}>
       <DialogContent sx={{ display: "flex", justifyContent: "space-around" }}>
         <Controller
           name="key"

@@ -13,6 +13,7 @@ import Paper from "@mui/material/Paper";
 import { Typography } from "@mui/material";
 import { useForm, useFieldArray } from "react-hook-form";
 import { useDialog } from "hooks/useDialog";
+import DeleteForm from "components/mui/DeleteForm";
 
 const Products = () => {
   const { control } = useForm();
@@ -22,11 +23,8 @@ const Products = () => {
     replace: productsReplace,
     remove: productsRemove,
   } = useFieldArray({ control, name: "products", keyName: "idInList" });
-
   const [pageSize, setPageSize] = useState(5);
-  const [showForm, setShowForm] = useState(false);
-  const [editValues, setEditValues] = useState({});
-  const { setOpenDialog, setDialogAction } = useDialog();
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
   useEffect(() => {
     (async () => {
@@ -40,43 +38,44 @@ const Products = () => {
     })();
   }, []);
 
-  const action = (values) => {
-    if (values.id) editItem(values);
-    else addItem(values);
+  const addItem = () => {
+    const action = ({ id, category, ...rest }) => {
+      addDoc(collection(db, "products"), {
+        ...rest,
+        category: [category],
+      }).then((res) => {
+        productPrepend({ id: res.id, category: [category], ...rest });
+      });
+    };
+    setDialogContent(<ProductForm action={action} editValues={{}} />);
+    setDialogSize("md");
+    setDialogTitle("Product form");
+    openDialog();
   };
-  const addItem = async ({ id, category, ...rest }) => {
-    addDoc(collection(db, "products"), {
-      ...rest,
-      category: [category],
-    }).then((res) => {
-      productPrepend({ id: res.id, category: [category], ...rest });
-    });
+
+  const editItem = (params) => {
+    const action = ({ id, category, ...rest }) => {
+      setDoc(doc(db, "products", id), { ...rest, category: [category] }, { merge: true }).then(() => {
+        productsReplace([...productsFields].map((item) => (item.id === id ? { id, category: [category], ...rest } : item)));
+      });
+    };
+    setDialogContent(<ProductForm action={action} editValues={params.row} />);
+    setDialogSize("md");
+    setDialogTitle("Product form");
+    openDialog();
   };
-  const editItem = async ({ id, category, ...rest }) => {
-    setDoc(doc(db, "products", id), { ...rest, category: [category] }, { merge: true }).then(() => {
-      productsReplace([...productsFields].map((item) => (item.id === id ? { id, category: [category], ...rest } : item)));
-    });
-  };
-  const deleteItem = (e, params) => {
-    e.stopPropagation();
-    setDialogAction(() => () => {
+
+  const deleteItem = (params) => {
+    const action = () => {
       const idInList = params.getValue(params.id, "idInList");
       const productId = params.getValue(params.id, "id");
       const indexInList = productsFields.findIndex((item) => item.idInList === idInList);
       deleteDoc(doc(db, "products", productId)).then(() => productsRemove(indexInList));
-    });
-    setOpenDialog(true);
-  };
-
-  const addAction = async (e) => {
-    e.stopPropagation();
-    setEditValues({});
-    setShowForm(true);
-  };
-  const editAction = async (e, params) => {
-    e.stopPropagation();
-    setEditValues(params.row);
-    setShowForm(true);
+    };
+    setDialogContent(<DeleteForm action={action} />);
+    setDialogSize("sm");
+    setDialogTitle("Are you sure you want to delete this item?");
+    openDialog();
   };
 
   const columns = [
@@ -101,7 +100,7 @@ const Products = () => {
     },
     {
       field: "collection",
-      headerName: "Product name",
+      headerName: "Collection",
       width: 200,
       renderCell: (params) => <p style={{ whiteSpace: "normal" }}>{params.value.join(", ")}</p>,
     },
@@ -135,10 +134,10 @@ const Products = () => {
       filterable: false,
       renderCell: (params) => (
         <Stack spacing={2}>
-          <Button variant="contained" size="small" startIcon={<EditIcon />} onClick={(e) => editAction(e, params)}>
+          <Button variant="contained" size="small" startIcon={<EditIcon />} onClick={() => editItem(params)}>
             Edit
           </Button>
-          <Button variant="contained" startIcon={<DeleteIcon />} color="error" size="small" onClick={(e) => deleteItem(e, params)}>
+          <Button variant="contained" startIcon={<DeleteIcon />} color="error" size="small" onClick={() => deleteItem(params)}>
             Delete
           </Button>
         </Stack>
@@ -151,7 +150,7 @@ const Products = () => {
       <Typography variant="h5" sx={{ my: 2 }}>
         Products management
       </Typography>
-      <Button variant="contained" sx={{ my: 2 }} startIcon={<AddIcon />} onClick={(e) => addAction(e)}>
+      <Button variant="contained" sx={{ my: 2 }} startIcon={<AddIcon />} onClick={addItem}>
         Add product
       </Button>
       <Paper sx={{ height: 1130, width: 1500, marginTop: "40px" }}>
@@ -170,7 +169,6 @@ const Products = () => {
           }}
         />
       </Paper>
-      {showForm && <ProductForm setShowForm={setShowForm} save={action} editValues={editValues} />}
     </Box>
   );
 };

@@ -4,17 +4,17 @@ export const SnackbarContext = createContext();
 export const useSnackbar = () => useContext(SnackbarContext);
 
 const SnackbarProvider = ({ children }) => {
-  const [snackBarState, setSnackbarState] = useState({
+  const [snackbarState, setSnackbarState] = useState({
     open: false,
     severity: "info",
     message: "",
   });
 
-  const handleClose = () => {
-    setSnackbarState({ ...snackBarState, open: false });
+  const closeSnackbar = () => {
+    setSnackbarState({ ...snackbarState, open: false });
   };
 
-  return <SnackbarContext.Provider value={{ snackBarState, setSnackbarState, handleClose }}>{children}</SnackbarContext.Provider>;
+  return <SnackbarContext.Provider value={{ snackbarState, setSnackbarState, closeSnackbar }}>{children}</SnackbarContext.Provider>;
 };
 
 export default SnackbarProvider;

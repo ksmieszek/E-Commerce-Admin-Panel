@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { db } from "firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -8,21 +8,22 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
 import { Typography } from "@mui/material";
+import { useDialog } from "hooks/useDialog";
 
 const MenuManagement = () => {
   const { control, handleSubmit } = useForm();
   const { fields: menusFields, replace: menusReplace } = useFieldArray({ control, name: "menus" });
-  const submitAllMenus = () => {
-    handleSubmit(onSubmit)();
-  };
   const onSubmit = (data) => {
     const { menus } = data;
     setDoc(doc(db, "menus", "main"), {
       ...menus,
     });
   };
+  const submitAllMenus = () => {
+    handleSubmit(onSubmit)();
+  };
 
-  const [showForm, setShowForm] = useState(false);
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
   useEffect(() => {
     (async () => {
@@ -36,22 +37,28 @@ const MenuManagement = () => {
     })();
   }, []);
 
-  const addMenuMain = (values) => {
-    const { order, title, link, key } = values;
-    const newMenusArray = [
-      ...menusFields,
-      {
-        order,
-        title,
-        link,
-        key,
-        categories: [],
-      },
-    ];
-    setShowForm(false);
-    menusReplace(newMenusArray);
-    submitAllMenus();
+  const addMenuMain = () => {
+    const addMenuMain = (values) => {
+      const { order, title, link, key } = values;
+      const newMenusArray = [
+        ...menusFields,
+        {
+          order,
+          title,
+          link,
+          key,
+          categories: [],
+        },
+      ];
+      menusReplace(newMenusArray);
+      submitAllMenus();
+    };
+    setDialogContent(<MenuMainForm action={addMenuMain} editValues={{}} />);
+    setDialogSize("lg");
+    setDialogTitle("Manage main category");
+    openDialog();
   };
+
   const deleteMenuMain = (id) => {
     const updatedArray = [...menusFields].filter((item) => item.id !== id);
     menusReplace(updatedArray);
@@ -63,15 +70,7 @@ const MenuManagement = () => {
       <Typography variant="h5" sx={{ my: 2 }}>
         Main menu management
       </Typography>
-      <Button
-        variant="contained"
-        sx={{ my: 2 }}
-        startIcon={<AddIcon />}
-        onClick={(e) => {
-          e.preventDefault();
-          setShowForm(true);
-        }}
-      >
+      <Button variant="contained" sx={{ my: 2 }} startIcon={<AddIcon />} onClick={addMenuMain}>
         Add menu
       </Button>
       <Box sx={{ display: "grid", gap: 1, gridTemplateColumns: "repeat(1, 1fr)" }}>
@@ -86,7 +85,6 @@ const MenuManagement = () => {
           />
         ))}
       </Box>
-      {showForm && <MenuMainForm save={addMenuMain} setShowForm={setShowForm} />}
     </Box>
   );
 };

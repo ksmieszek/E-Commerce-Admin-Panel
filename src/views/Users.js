@@ -8,12 +8,12 @@ import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import { Typography } from "@mui/material";
 import UserRoleForm from "components/forms/userManagement/UserRoleForm";
+import { useDialog } from "hooks/useDialog";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [pageSize, setPageSize] = useState(10);
-  const [showForm, setShowForm] = useState(false);
-  const [editValues, setEditValues] = useState({});
+  const { openDialog, setDialogContent, setDialogTitle, setDialogSize } = useDialog();
 
   useEffect(() => {
     (async () => {
@@ -30,17 +30,17 @@ const Users = () => {
     })();
   }, []);
 
-  const editUserRole = async (values) => {
-    const { admin, id } = values;
-    setDoc(doc(db, "users", id), { roles: { admin: admin === "true" } }, { merge: true }).then(() => {
-      setUsers([...users].map((item) => (item.id === id ? { ...item, isAdmin: admin === "true" } : item)));
-    });
-  };
-
-  const editAction = async (e, params) => {
-    e.stopPropagation();
-    setEditValues(params.row);
-    setShowForm(true);
+  const editItem = (params) => {
+    const action = (values) => {
+      const { admin, id } = values;
+      setDoc(doc(db, "users", id), { roles: { admin: admin === "true" } }, { merge: true }).then(() => {
+        setUsers([...users].map((item) => (item.id === id ? { ...item, isAdmin: admin === "true" } : item)));
+      });
+    };
+    setDialogContent(<UserRoleForm action={action} editValues={params.row} />);
+    setDialogSize("sm");
+    setDialogTitle("Change user role");
+    openDialog();
   };
 
   const columns = [
@@ -71,7 +71,7 @@ const Users = () => {
       sortable: false,
       filterable: false,
       renderCell: (params) => (
-        <Button variant="contained" size="small" startIcon={<EditIcon />} onClick={(e) => editAction(e, params)}>
+        <Button variant="contained" size="small" startIcon={<EditIcon />} onClick={() => editItem(params)}>
           Edit
         </Button>
       ),
@@ -99,7 +99,6 @@ const Users = () => {
           }}
         />
       </Paper>
-      {showForm && <UserRoleForm setShowForm={setShowForm} save={editUserRole} editValues={editValues} />}
     </Box>
   );
 };
