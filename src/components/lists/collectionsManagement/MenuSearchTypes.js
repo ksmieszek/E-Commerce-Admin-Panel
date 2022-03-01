@@ -17,9 +17,10 @@ const MenuSearchTypes = () => {
 
   useEffect(() => {
     (async () => {
-      const relations = (await getDoc(doc(db, "relations", "categoryPodcategory"))).data();
+      const relationsSnapshot = await getDoc(doc(db, "relations", "categoryPodcategory"));
+      if (!relationsSnapshot.exists()) return;
       const list = [];
-      for (const [key, value] of Object.entries(relations)) list.push({ key: key, value: value });
+      for (const [key, value] of Object.entries(relationsSnapshot.data())) list.push({ key: key, value: value });
       setFields(list);
     })();
   }, []);
